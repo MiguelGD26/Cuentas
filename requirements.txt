@@ -1,5 +1,7 @@
 gunicorn
 python-decouple
+# Middleware para servir archivos estáticos en producción
+whitenoise==6.6.0  # versión compatible con Django 5.2
 asgiref==3.8.1
 certifi==2025.4.26
 cffi==1.17.1
