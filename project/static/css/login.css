@@ -6,9 +6,7 @@
 
 body {
 	font-family: 'Poppins', sans-serif;
-	overflow: hidden;
-
-}
+	overflow: hidden;}
 
 .wave {
 	position: fixed;
@@ -24,9 +22,7 @@ body {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	grid-gap: 7rem;
-	padding: 0 2rem;
-}
-
+	padding: 0 2rem;}
 
 .img {
 	display: flex;
@@ -76,12 +72,12 @@ form {
 	transition: .3s;
 }
 
-.input-div>div {
+.input-div > div {
 	position: relative;
 	height: 45px;
 }
 
-.input-div>div>h5 {
+.input-div > div > h5 {
 	position: absolute;
 	left: 10px;
 	top: 50%;
@@ -115,16 +111,16 @@ form {
 	width: 50%;
 }
 
-.input-div.focus>div>h5 {
+.input-div.focus > div > h5 {
 	top: -5px;
 	font-size: 15px;
 }
 
-.input-div.focus>.i>i {
+.input-div.focus > .i > i {
 	color: #38d39f;
 }
 
-.input-div>div>input {
+.input-div > div > input {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -136,7 +132,7 @@ form {
 	padding: 0.5rem 0.7rem;
 	font-size: 1.2rem;
 	color: #555;
-	font-family: 'poppins', sans-serif;
+	font-family: 'Poppins', sans-serif;
 }
 
 .input-div.pass {
@@ -189,27 +185,99 @@ a:hover {
 }
 
 
+/* Media queries para pantallas pequeñas */
+@media (max-width: 600px) {
+	.container {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		padding: 1rem;
+		grid-gap: 0; /* Eliminamos gap porque flex lo controla */
+	}
+
+	.login-content {
+		width: 100%;
+		max-width: 320px;
+		margin: auto;
+		text-align: center;
+	}
+
+	.img {
+		display: none;
+	}
+
+	form {
+		width: 100%;
+		max-width: 320px;
+	}
+
+	body {
+		overflow-y: auto; /* permitir scroll si hace falta */
+	}
+}
+
+/* Mantengo tus otros media queries pero con algunas correcciones */
+@media (max-width: 900px) {
+	.login-content {
+		width: 100%;
+		text-align: right;
+	}
+
+	.container {
+		grid-gap: 5rem;
+		grid-template-columns: 1fr;
+	}
+
+	form {
+		width: 290px;
+	}
+
+	.login-content h2 {
+		font-size: 2.4rem;
+		margin: 8px 0;
+	}
+
+	.img img {
+		width: 400px;}
+
+	.img {
+		display: none;
+	}
+
+	.wave {
+		display: none;
+	}
+
+	.video-background {
+		width: 100%;
+	}
+}
+
+@media screen and (min-width: 1366px) and (max-height: 1024px) {
+	.video-background {
+		object-position: 80% center;
+	}
+}
+
 @media (max-width: 900px), (max-width: 1900px) {
 
 	.login-content {
 		width: 100%;
-	  height: 100%;
-    margin-left: auto;
-		min-width: center;		
-		align-content: center;
-		text-align:center;
+		min-width: right;		
+		align-content: right;
+		text-align:right;
 	}
 
 	.container {
-    width: 100%;
-	  height: 10%;
 		grid-gap: 5rem;
 	}
 
 
 
 	form {
-		width: 100% !important; 
+		width: 290px;
 	}
 
 	.login-content h2 {
@@ -241,64 +309,11 @@ a:hover {
 
 }
 
-@media (max-width: 991px), (max-width: 600px) {
-	.video-background {
-		display: block;
-		object-position: center center;
-	}
-
-	.container-fluid {
-		height: 100vh;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		position: fixed;
-		z-index: 1;
-	}
-
-
-	* {
-		padding: 0;
-		margin: 0;
-		box-sizing: border-box;
-	}
-
-	body {
-		font-family: 'Poppins', sans-serif;
-		overflow: hidden;
-	}
-
-	.video-background {
-		position: fixed;
-		top: 0;
-		left: 0;
-		min-width: 100%;
-		min-height: 100%;
-		object-fit: cover;
-		z-index: -1;
-	}
-
-	.login-content {
-		position: fixed;
-		display: relative;
-		width: auto;
-    height: auto;
-		max-width: auto;		
-
-	}
-  .container {
-    width: 100%;
-	  height: 10%;
-	  grid-template-columns: 1fr;
-	  grid-gap: 7rem;
-	}
-
-
-
+.invalid-feedback {
+  display: none; /* Por defecto lo oculta Bootstrap */
+  color: #dc3545; /* rojo Bootstrap */
 }
 
-@media screen and (min-width: 1366px) and (max-height: 1024px) {
-	.video-background {
-		object-position: 70% center;
-	}
+.invalid-feedback.d-block {
+  display: block !important;
 }
