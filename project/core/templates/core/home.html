@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<h2>Bienvenido al sistema de Cuentas por Pagar</h2>
+{% if user.is_authenticated %}
+    <p>Hola, {{ user.username }}. Usa el menú para gestionar proveedores.</p>
+{% else %}
+    <p>Por favor, <a href="{% url 'login' %}">inicia sesión</a> para comenzar.</p>
+{% endif %}
+{% endblock %}

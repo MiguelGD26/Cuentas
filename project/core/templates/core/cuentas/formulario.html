@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

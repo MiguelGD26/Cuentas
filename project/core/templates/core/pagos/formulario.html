@@ -1,0 +1,136 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Editar{% else %}Nuevo{% endif %} Pago</h2>
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_cuenta" class="form-label">Cuenta:</label>
+            {{ form.cuenta }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_fecha_pago" class="form-label">Fecha de Pago:</label>
+            {{ form.fecha_pago }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_monto_pagado" class="form-label">Monto Pagado:</label>
+            {{ form.monto_pagado }}
+        </div>
+
+        <!-- Info dinámica de la cuenta seleccionada -->
+        <div id="info-cuenta" class="alert alert-info d-none">
+            <p><strong>Proveedor:</strong> <span id="proveedor-nombre"></span></p>
+            <p><strong>Documento:</strong> <span id="nro-documento"></span></p>
+            <p><strong>Monto Total:</strong> S/ <span id="monto-total"></span></p>
+            <p><strong>Abonado:</strong> S/ <span id="monto-abonado"></span></p>
+            <p><strong>Saldo pendiente:</strong> <strong>S/ <span id="saldo-pendiente">0.00</span></strong></p>
+        </div>
+
+        <button type="button" class="btn btn-outline-success mb-3 d-none" id="btn-pagar-total" onclick="pagarTotal()">
+            Pagar Total
+        </button>
+
+        <div>
+            <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
+            <a href="{% url 'listar_pagos' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script id="datos-cuentas" type="application/json">
+    {
+        {% for cuenta in form.fields.cuenta.queryset %}
+            "{{ cuenta.pk }}": {
+                "saldo": {{ cuenta.saldo_pendiente|floatformat:2 }},
+                "proveedor": "{{ cuenta.proveedor.nombre|escapejs }}",
+                "documento": "{{ cuenta.nro_documento|escapejs }}",
+                "total": {{ cuenta.monto_total|floatformat:2 }},
+                "abonado": {{ cuenta.monto_abonado|floatformat:2 }}
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    }
+</script>
+<script>
+    const cuentasInfo = JSON.parse(document.getElementById("datos-cuentas").textContent);
+
+    const cuentaSelect = document.getElementById("id_cuenta");
+    const saldoSpan = document.getElementById("saldo-pendiente");
+    const montoInput = document.getElementById("id_monto_pagado");
+    const btnGuardar = document.getElementById("btn-guardar");
+    const infoCuentaDiv = document.getElementById("info-cuenta");
+    const btnPagarTotal = document.getElementById("btn-pagar-total");
+
+    function actualizarSaldo() {
+        const cuentaId = cuentaSelect.value;
+        const datos = cuentasInfo[cuentaId];
+
+        if (datos) {
+            saldoSpan.textContent = datos.saldo.toFixed(2);
+            document.getElementById("proveedor-nombre").textContent = datos.proveedor;
+            document.getElementById("nro-documento").textContent = datos.documento;
+            document.getElementById("monto-total").textContent = datos.total.toFixed(2);
+            document.getElementById("monto-abonado").textContent = datos.abonado.toFixed(2);
+
+            infoCuentaDiv.classList.remove("d-none");
+            btnPagarTotal.classList.remove("d-none");
+        } else {
+            saldoSpan.textContent = "0.00";
+            infoCuentaDiv.classList.add("d-none");
+            btnPagarTotal.classList.add("d-none");
+        }
+        validarMonto();
+    }
+
+    function pagarTotal() {
+        const cuentaId = cuentaSelect.value;
+        const datos = cuentasInfo[cuentaId];
+        if (datos && montoInput) {
+            montoInput.value = datos.saldo.toFixed(2);
+            validarMonto();
+        }
+    }
+
+    function validarMonto() {
+        const cuentaId = cuentaSelect.value;
+        const datos = cuentasInfo[cuentaId];
+        const valorIngresado = parseFloat(montoInput.value);
+        if (!datos) {
+            btnGuardar.disabled = true;
+            return;
+        }
+
+        const saldo = datos.saldo;
+
+        if (isNaN(valorIngresado) || valorIngresado <= 0 || valorIngresado > saldo) {
+            btnGuardar.disabled = true;
+        } else {
+            btnGuardar.disabled = false;
+        }
+    }
+
+    if (cuentaSelect) cuentaSelect.addEventListener("change", actualizarSaldo);
+    if (montoInput) montoInput.addEventListener("input", validarMonto);
+
+    actualizarSaldo();
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Pagos</h2>
+<a href="{% url 'crear_pago' %}" class="btn btn-success mb-3">
+    <i class="bi bi-currency-dollar"></i> Nuevo pago
+</a>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <select name="proveedor" class="form-select">
+            <option value="">-- Proveedor --</option>
+            {% for proveedor in proveedores %}
+                <option value="{{ proveedor.proveedor_id }}" {% if proveedor_id == proveedor.proveedor_id|stringformat:"s" %}selected{% endif %}>
+                    {{ proveedor.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="desde" class="form-control" value="{{ desde }}">
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="hasta" class="form-control" value="{{ hasta }}">
+    </div>
+    <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+        </button>
+    </div>
+    <div class="col-md-1 d-grid">
+        <a href="{% url 'listar_pagos' %}" class="btn btn-secondary">Limpiar</a>
+    </div>
+</form>
+
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Cuenta</th>
+            <th>Proveedor</th>
+            <th>Fecha</th>
+            <th>Monto</th>
+            <th>Opciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pago in pagos %}
+        <tr>
+            <td>{{ pago.cuenta.nro_documento }}</td>
+            <td>{{ pago.cuenta.proveedor.nombre }}</td>
+            <td>{{ pago.fecha_pago }}</td>
+            <td>S/ {{ pago.monto_pagado }}</td>
+            <td>
+                <a href="{% url 'eliminar_pago' pago.pago_id %}" class="btn btn-sm btn-danger" title="Eliminar pago"
+                   onclick="return confirm('¿Estás seguro de eliminar este pago?')">
+                    <i class="bi bi-trash-fill text-white"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No hay pagos registrados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if pagos.has_other_pages %}
+<nav>
+    <ul class="pagination">
+        {% if pagos.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ pagos.previous_page_number }}">Anterior</a>
+        </li>
+        {% endif %}
+
+        {% for num in pagos.paginator.page_range %}
+        <li class="page-item {% if pagos.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        {% if pagos.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ pagos.next_page_number }}">Siguiente</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
