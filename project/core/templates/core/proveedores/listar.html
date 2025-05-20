@@ -31,7 +31,7 @@
         <a href="{% url 'listar_proveedores' %}" class="btn btn-secondary">Limpiar</a>
     </div>
 </form>
-
+<div class="table-responsive">
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
@@ -75,7 +75,7 @@
         {% endfor %}
     </tbody>
 </table>
-
+</div>
 {% if proveedores.has_other_pages %}
 <nav>
     <ul class="pagination">
