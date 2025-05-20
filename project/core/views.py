@@ -11,6 +11,9 @@ import uuid
 from .models import Proveedor, CuentaPorPagar, TipoDocumento, Pago
 from .forms import ProveedorForm, CuentaPorPagarForm, PagoForm
 
+def dashboard(request):
+    return render(request, 'core/dashboard.html')
+
 # Página de inicio
 def home(request):
     return render(request, 'core/home.html')
@@ -24,7 +27,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Sesión iniciada correctamente")
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request, "Credenciales incorrectas")
             return redirect('login')
