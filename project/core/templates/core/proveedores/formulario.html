@@ -1,14 +1,148 @@
 {% extends 'core/plantilla/app.html' %}
-
-{% block title %}Formulario Proveedor{% endblock %}
-
+{% load form_filters %}
+{% block title %}Registro de Proveedor{% endblock %}
 {% block content %}
-<h2>{% if form.instance.pk %}Editar{% else %}Nuevo{% endif %} Proveedor</h2>
+<div class="form-container">
+  <div class="form-header">
+    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920216.png" alt="Icono proveedor">
+    <h2>{% if es_edicion %}Editar{% else %}Registrar{% endif %} Proveedor</h2>
+  </div>
 
-<form method="post">
+  <form method="POST" onsubmit="return validarFormulario();">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'listar_proveedores' %}" class="btn btn-secondary">Cancelar</a>
-</form>
+
+    <!-- Nombre -->
+    <div class="mb-4">
+      {% if form.nombre.errors %}
+        <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div">
+        <i class="fas fa-user"></i>
+        {{ form.nombre }}
+      </div>
+      <p id="nombre-error" class="help is-danger is-hidden">El nombre es obligatorio.</p>
+    </div>
+
+    <!-- RUC -->
+    <div class="mb-4">
+      {% if form.ruc.errors %}
+        <p class="help is-danger">{{ form.ruc.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div">
+        <i class="fas fa-id-card"></i>
+        {{ form.ruc }}
+      </div>
+      <p id="ruc-error" class="help is-danger is-hidden">El RUC debe tener 11 dígitos numéricos.</p>
+    </div>
+
+    <!-- Dirección -->
+    <div class="mb-4">
+      {% if form.direccion.errors %}
+        <p class="help is-danger">{{ form.direccion.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div">
+        <i class="fas fa-map-marker-alt"></i>
+        {{ form.direccion }}
+      </div>
+      <p id="direccion-error" class="help is-danger is-hidden">La dirección es obligatoria.</p>
+    </div>
+
+    <!-- Correo -->
+    <div class="mb-4">
+      {% if form.correo.errors %}
+        <p class="help is-danger">{{ form.correo.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div">
+        <i class="fas fa-envelope"></i>
+        {{ form.correo }}
+      </div>
+      <p id="correo-error" class="help is-danger is-hidden">El correo no tiene un formato válido.</p>
+    </div>
+
+    <!-- Teléfono -->
+    <div class="mb-4">
+      {% if form.telefono.errors %}
+        <p class="help is-danger">{{ form.telefono.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div">
+        <i class="fas fa-phone"></i>
+        {{ form.telefono }}
+      </div>
+      <p id="telefono-error" class="help is-danger is-hidden">El teléfono debe comenzar con 9 y tener 9 dígitos.</p>
+    </div>
+
+    <!-- Estado toggle switch -->
+    <div class="mb-6">
+      {% if form.estado.errors %}
+        <p class="help is-danger">{{ form.estado.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div" style="justify-content: flex-start;">
+        <i class="fas fa-toggle-on"></i>
+        <label class="toggle-switch ml-3" for="estado">
+          <input type="checkbox" id="estado" name="estado" {% if form.estado.value == True or form.estado.value == 'True' or form.estado.value == '1' %}checked{% endif %} />
+          <span class="slider"></span>
+        </label>
+        <span class="estado-label" id="estado-text">Inactivo</span>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">
+       {% if es_edicion %}Actualizar{% else %}Registrar{% endif %} Proveedor
+    </button>
+  </form>
+</div>
+
+<!-- Scripts -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script>
+    function validarFormulario() {
+      let valido = true;
+
+      const campos = [
+        { id: 'nombre', error: 'nombre-error' },
+        { id: 'ruc', error: 'ruc-error', valid: v => /^\d{11}$/.test(v) },
+        { id: 'direccion', error: 'direccion-error' },
+        { id: 'correo', error: 'correo-error', valid: v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) },
+        { id: 'telefono', error: 'telefono-error', valid: v => /^9\d{8}$/.test(v) },
+      ];
+
+      campos.forEach(({ id, error, valid }) => {
+        const input = document.getElementById(id);
+        const msg = document.getElementById(error);
+        const value = input.value.trim();
+
+        if (!value || (valid && !valid(value))) {
+          msg.classList.remove('is-hidden');
+          valido = false;
+        } else {
+          msg.classList.add('is-hidden');
+        }
+      });
+
+      // Validar toggle estado (checkbox)
+      const estado = document.getElementById('estado');
+      const estadoError = document.getElementById('estado-error');
+      return valido;
+    }
+
+    // Cambiar texto y color del toggle estado
+    document.addEventListener('DOMContentLoaded', () => {
+      const estado = document.getElementById('estado');
+      const estadoText = document.getElementById('estado-text');
+
+      function actualizarEstado() {
+        if (estado.checked) {
+          estadoText.textContent = 'Activo';
+          estadoText.style.color = '#48c78e'; // verde
+        } else {
+          estadoText.textContent = 'Inactivo';
+          estadoText.style.color = '#f14668'; // rojo
+        }
+      }
+
+      estado.addEventListener('change', actualizarEstado);
+      actualizarEstado();
+    });
+  </script>
 {% endblock %}
+

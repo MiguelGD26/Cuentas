@@ -79,7 +79,10 @@ def crear_proveedor(request):
             return redirect('listar_proveedores')
     else:
         form = ProveedorForm()
-    return render(request, 'core/proveedores/formulario.html', {'form': form})
+    return render(request, 'core/proveedores/formulario.html', {
+    'form': form,
+    'es_edicion': False,
+})
 
 # Editar proveedor
 @login_required
@@ -90,7 +93,10 @@ def editar_proveedor(request, pk):
         form.save()
         messages.success(request, "Proveedor actualizado")
         return redirect('listar_proveedores')
-    return render(request, 'core/proveedores/formulario.html', {'form': form})
+    return render(request, 'core/proveedores/formulario.html', {
+    'form': form,
+    'es_edicion': True,
+})
 
 # Eliminar proveedor
 @login_required

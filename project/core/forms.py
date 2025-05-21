@@ -1,11 +1,51 @@
 from django import forms
+
+from project.choices import EstadoEntidades
 from .models import Proveedor, CuentaPorPagar, Pago
 from django.core.exceptions import ValidationError
 
 class ProveedorForm(forms.ModelForm):
+    estado = forms.BooleanField(required=False, label="Estado (activo/inactivo)")
+
     class Meta:
         model = Proveedor
         fields = ['nombre', 'ruc', 'direccion', 'correo', 'telefono', 'estado']
+
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'nombre',
+                'placeholder': 'Ingrese el nombre del proveedor'
+            }),
+            'ruc': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'ruc',
+                'placeholder': 'Ingrese el RUC (11 dígitos)'
+            }),
+            'direccion': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'direccion',
+                'placeholder': 'Ingrese la dirección'
+            }),
+            'correo': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'id': 'correo',
+                'placeholder': 'Ingrese un correo válido'
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'telefono',
+                'placeholder': 'Ingrese teléfono (9 dígitos, inicia con 9)'
+            }),
+            'estado': forms.CheckboxInput(attrs={
+                'id': 'estado',
+            }),
+        }
+    
+    def clean_estado(self):
+        checked = self.cleaned_data.get('estado', False)
+        return EstadoEntidades.ACTIVO if checked else EstadoEntidades.DE_BAJA
+
 
 class CuentaPorPagarForm(forms.ModelForm):
     class Meta:
