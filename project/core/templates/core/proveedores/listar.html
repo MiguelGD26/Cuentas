@@ -10,17 +10,27 @@
 
 <form method="get" class="row g-3 mb-4">
     <div class="col-md-3">
-        <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ nombre }}">
+        <div class="input-div">
+            <i class="fas fa-user"></i>
+            <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ nombre }}">
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="input-div">
+            <i class="fas fa-file-alt"></i>
+            <input type="text" name="ruc" class="form-control" placeholder="RUC" value="{{ ruc }}">
+        </div>
     </div>
     <div class="col-md-3">
-        <input type="text" name="ruc" class="form-control" placeholder="RUC" value="{{ ruc }}">
-    </div>
-    <div class="col-md-3">
-        <select name="estado" class="form-select">
-            <option value="">-- Estado --</option>
-            <option value="1" {% if estado == "1" %}selected{% endif %}>Activo</option>
-            <option value="9" {% if estado == "9" %}selected{% endif %}>Inactivo</option>
-        </select>
+        <div class="input-div">
+            <i class="fas fa-toggle-on"></i>
+            <select name="estado" class="form-select">
+                <option value=""> Estado </option>
+                <option value="1" {% if estado == "1" %}selected{% endif %}>Activo</option>
+                <option value="9" {% if estado == "9" %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
     </div>
     <div class="col-md-1 d-grid">
         <button type="submit" class="btn btn-primary">
@@ -28,7 +38,9 @@
         </button>
     </div>
     <div class="col-md-1 d-grid">
-        <a href="{% url 'listar_proveedores' %}" class="btn btn-secondary">Limpiar</a>
+        <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary d-flex justify-content-center align-items-center">
+            <i class="fas fa-eraser"></i>
+        </a>
     </div>
 </form>
 <div class="table-responsive">

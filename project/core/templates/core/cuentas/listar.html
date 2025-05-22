@@ -25,29 +25,44 @@
 
     <form method="get" class="row g-3 mb-4">
         <div class="col-md-3">
-            <input type="text" name="q" class="form-control" placeholder="Proveedor o documento..." value="{{ query }}">
+            <div class="input-div">
+                <i class="fas fa-user"></i>
+                <input type="text" name="q" class="form-control" placeholder="Proveedor o documento..." value="{{ query }}">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-div">
+                <i class="fas fa-toggle-on"></i>
+                <select name="estado" class="form-select">
+                    <option value=""> Estado </option>
+                    <option value="1" {% if estado == '1' %}selected{% endif %}>Activa</option>
+                    <option value="2" {% if estado == '2' %}selected{% endif %}>Cancelada</option>
+                    <option value="3" {% if estado == '3' %}selected{% endif %}>Vencida</option>
+                </select>
+            </div>
         </div>
         <div class="col-md-2">
-            <select name="estado" class="form-select">
-                <option value="">-- Estado --</option>
-                <option value="1" {% if estado == '1' %}selected{% endif %}>Activa</option>
-                <option value="2" {% if estado == '2' %}selected{% endif %}>Cancelada</option>
-                <option value="3" {% if estado == '3' %}selected{% endif %}>Vencida</option>
-            </select>
+            <div class="input-div">
+                <i class="fas fa-calendar-alt"></i>
+                <input type="text" id="desde" name="desde" class="form-control" placeholder="Desde..." value="{{ desde|default_if_none:'' }}">
+            </div>
         </div>
         <div class="col-md-2">
-            <input type="date" name="desde" class="form-control" value="{{ desde }}">
-        </div>
-        <div class="col-md-2">
-            <input type="date" name="hasta" class="form-control" value="{{ hasta }}">
+            <div class="input-div">
+                <i class="fas fa-calendar-check"></i>
+                <input type="text" id="hasta" name="hasta" class="form-control" placeholder="Hasta..." value="{{ hasta|default_if_none:'' }}">
+            </div>
         </div>
         <div class="col-md-1 d-grid">
             <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i>
+                <i class="fas fa-magnifying-glass"></i>
             </button>
         </div>
         <div class="col-md-1 d-grid">
-            <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary">Limpiar</a>
+            <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary d-flex justify-content-center align-items-center">
+                <i class="fas fa-eraser"></i>
+            </a>
         </div>
     </form>
 
@@ -92,11 +107,11 @@
                 </td>
                 <td>
                     <a href="{% url 'editar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-warning">
-                        <i class="bi bi-pencil-fill" title="Editar Cuenta"></i>
+                        <i class="fas fa-pen-to-square" title="Editar Cuenta"></i>
                     </a>
                     <a href="{% url 'eliminar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-danger" title="Eliminar cuenta"
                        onclick="return confirm('¿Estás seguro de eliminar esta cuenta?')">
-                        <i class="bi bi-trash-fill text-white"></i>
+                        <i class="fas fa-trash"></i>
                     </a>
                 </td>
             </tr>
@@ -131,4 +146,18 @@
     <p>No hay cuentas registradas.</p>
     {% endif %}
 </div>
+
+<script>
+    flatpickr("#desde", {
+        dateFormat: "Y-m-d",
+        locale: "es",
+        allowInput: true
+    });
+
+    flatpickr("#hasta", {
+        dateFormat: "Y-m-d",
+        locale: "es" ,
+        allowInput: true
+    });
+</script>
 {% endblock %}

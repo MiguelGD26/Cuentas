@@ -87,18 +87,15 @@
     </p>
     </div>
 
-
-
     <!-- Fecha de emisión -->
     <div class="mb-4">
-    {% if form.fecha_emision.errors %}
-        <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        
-        <i class="fas fa-calendar-alt"></i>
-        {{ form.fecha_emision }}
-    </div>
+      {% if form.fecha_emision.errors %}
+          <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
+      {% endif %}
+      <div class="input-div">
+          <i class="fas fa-calendar-alt"></i>
+          {{ form.fecha_emision }}
+      </div>
     </div>
 
     <!-- Fecha de vencimiento -->
