@@ -95,6 +95,7 @@
         <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
     {% endif %}
     <div class="input-div">
+        
         <i class="fas fa-calendar-alt"></i>
         {{ form.fecha_emision }}
     </div>
@@ -187,5 +188,18 @@
     return valido;
   }
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    flatpickr("input[name='fecha_emision']", {
+      dateFormat: "Y-m-d",  // o cambia a "d/m/Y" si prefieres
+      locale: "es"  // para idioma español (requiere librería adicional)
+    });
+    flatpickr("input[name='fecha_vencimiento']", {
+      dateFormat: "Y-m-d",
+      locale: "es"
+    });
+  });
+</script>
+
 
 {% endblock %}

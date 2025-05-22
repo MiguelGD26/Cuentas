@@ -61,7 +61,6 @@ class ProveedorForm(forms.ModelForm):
 
 
 class CuentaPorPagarForm(forms.ModelForm):
-
     proveedor = forms.ModelChoiceField(
         queryset=Proveedor.objects.all(),
         empty_label="Selecciona proveedor",
@@ -91,17 +90,23 @@ class CuentaPorPagarForm(forms.ModelForm):
 
     fecha_emision = forms.DateField(
         widget=forms.DateInput(attrs={
-            'type': 'date',
+            'type': 'text',
             'class': 'form-control',
-            'id': 'fecha_emision'
+            'id': 'fecha_emision',
+            'autocomplete': 'off',
+            'placeholder': 'Ingresa Fecha de emisión'
+            
         })
     )
 
     fecha_vencimiento = forms.DateField(
         widget=forms.DateInput(attrs={
-            'type': 'date',
+            'type': 'text',
             'class': 'form-control',
-            'id': 'fecha_vencimiento'
+            'id': 'fecha_vencimiento',
+            'autocomplete': 'off' ,
+            'placeholder': 'Ingresa Fecha de vencimiento'
+            
         })
     )
 
