@@ -50,7 +50,7 @@ class CuentaPorPagar(models.Model):
     fecha_vencimiento = models.DateField()
     monto_total = models.DecimalField(max_digits=12, decimal_places=2)
 
-    monto_abonado_inicial = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    monto_abonado_inicial = models.DecimalField(max_digits=12, decimal_places=2)
 
     # Calculados automáticamente
     monto_abonado = models.DecimalField(max_digits=12, decimal_places=2, default=0, editable=False)

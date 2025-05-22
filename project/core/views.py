@@ -74,15 +74,18 @@ def crear_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
         if form.is_valid():
-            form.save()
+            proveedor = form.save(commit=False)
+            proveedor.estado = True  # Forzar estado como activo
+            proveedor.save()
             messages.success(request, "Proveedor registrado")
             return redirect('listar_proveedores')
     else:
         form = ProveedorForm()
     return render(request, 'core/proveedores/formulario.html', {
-    'form': form,
-    'es_edicion': False,
-})
+        'form': form,
+        'es_edicion': False,
+    })
+
 
 # Editar proveedor
 @login_required
@@ -123,9 +126,10 @@ def listar_cuentas(request):
     # Filtro de búsqueda general (proveedor o número de documento)
     if query:
         cuentas = cuentas.filter(
-            Q(proveedor_nombre_icontains=query) |
+            Q(proveedor__nombre__icontains=query) |
             Q(nro_documento__icontains=query)
         )
+
 
     # Filtro por proveedor
     if proveedor_id:
@@ -195,7 +199,11 @@ def crear_cuenta(request):
             return redirect('listar_cuentas')
     else:
         form = CuentaPorPagarForm()
-    return render(request, 'core/cuentas/formulario.html', {'form': form})
+    return render(request, 'core/cuentas/formulario.html',  {
+    'form': form,
+    'es_edicion': False,
+})
+
 
 # Editar cuenta
 @login_required
@@ -206,8 +214,10 @@ def editar_cuenta(request, pk):
         form.save()
         messages.success(request, "Cuenta por pagar actualizada")
         return redirect('listar_cuentas')
-    return render(request, 'core/cuentas/formulario.html', {'form': form})
-
+    return render(request, 'core/cuentas/formulario.html',  {
+    'form': form,
+    'es_edicion': True,
+})
 # Eliminar cuenta
 @login_required
 def eliminar_cuenta(request, pk):

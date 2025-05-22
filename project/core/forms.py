@@ -1,7 +1,8 @@
+from datetime import date
 from django import forms
 
-from project.choices import EstadoEntidades
-from .models import Proveedor, CuentaPorPagar, Pago
+from project.choices import EstadoCuenta, EstadoEntidades
+from .models import Proveedor, CuentaPorPagar, Pago, TipoDocumento
 from django.core.exceptions import ValidationError
 
 class ProveedorForm(forms.ModelForm):
@@ -45,9 +46,80 @@ class ProveedorForm(forms.ModelForm):
     def clean_estado(self):
         checked = self.cleaned_data.get('estado', False)
         return EstadoEntidades.ACTIVO if checked else EstadoEntidades.DE_BAJA
+    
+    def clean_ruc(self):
+        ruc = self.cleaned_data.get('ruc')
+         # Validar que el RUC no esté duplicado (excepto en edición)
+        queryset = Proveedor.objects.filter(ruc=ruc)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise forms.ValidationError("Este RUC ya está registrado.")
+
+        return ruc
 
 
 class CuentaPorPagarForm(forms.ModelForm):
+
+    proveedor = forms.ModelChoiceField(
+        queryset=Proveedor.objects.all(),
+        empty_label="Selecciona proveedor",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'proveedor'
+        })
+    )
+
+    tipo_documento = forms.ModelChoiceField(
+    queryset=TipoDocumento.objects.all(),
+    empty_label="Selecciona tipo de documento",
+    widget=forms.Select(attrs={
+        'class': 'form-control',
+        'id': 'tipo_documento'
+    })
+)
+
+
+    nro_documento = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'nro_documento',
+            'placeholder': 'Ingrese el número del documento'
+        })
+    )
+
+    fecha_emision = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control',
+            'id': 'fecha_emision'
+        })
+    )
+
+    fecha_vencimiento = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control',
+            'id': 'fecha_vencimiento'
+        })
+    )
+
+    monto_total = forms.DecimalField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'id': 'monto_total',
+            'placeholder': 'Ingrese el monto total'
+        })
+    )
+
+    monto_abonado_inicial = forms.DecimalField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'id': 'monto_abonado_inicial',
+            'placeholder': 'Ingrese el monto abonado inicial'
+        })
+    )
     class Meta:
         model = CuentaPorPagar
         fields = [
@@ -58,6 +130,41 @@ class CuentaPorPagarForm(forms.ModelForm):
         widgets = {
             'fecha_emision': forms.DateInput(attrs={'type': 'date'}),
             'fecha_vencimiento': forms.DateInput(attrs={'type': 'date'}),
+
+            'proveedor': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'proveedor'
+
+            }),
+            'tipo_documento': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'tipo_documento'
+            }),
+            'nro_documento': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'nro_documento',
+                'placeholder': 'Ingrese el número del documento'
+            }),
+            'fecha_emision': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'id': 'fecha_emision'
+            }),
+            'fecha_vencimiento': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'id': 'fecha_vencimiento'
+            }),
+            'monto_total': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'id': 'monto_total',
+                'placeholder': 'Ingrese el monto total'
+            }),
+            'monto_abonado_inicial': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'id': 'monto_abonado_inicial',
+                'placeholder': 'Ingrese el monto abonado inicial'
+            }),
         }
 
     def clean(self):

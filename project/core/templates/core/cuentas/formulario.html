@@ -1,16 +1,191 @@
 {% extends 'core/plantilla/app.html' %}
-{% load static %}
-
+{% load form_filters %}
+{% block title %}{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>{% if form.instance.pk %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary">Cancelar</a>
-    </form>
+<div class="form-container">
+  <div class="form-header">
+    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921822.png" alt="Icono cuenta">
+    <h2>{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar</h2>
+  </div>
+
+  <form method="POST" onsubmit="return validarFormulario();">
+    {% csrf_token %}
+
+    <!-- Proveedor -->
+    <div class="mb-4">
+    {% if form.proveedor.errors %}
+        <p class="help is-danger">{{ form.proveedor.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-user-tie"></i>
+        {% if es_edicion %}
+        <select disabled class="input" id="proveedor-disabled">
+            {% for proveedor in form.proveedor.field.queryset %}
+            <option value="{{ proveedor.pk }}" {% if proveedor.pk == form.proveedor.value %}selected{% endif %}>
+                {{ proveedor }}
+            </option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="proveedor" value="{{ form.proveedor.value }}">
+        {% else %}
+        {{ form.proveedor }}
+        {% endif %}
+    </div>
+    <p id="proveedor-error" class="help is-danger is-hidden">Debes seleccionar un proveedor.</p>
+    </div>
+
+
+    <!-- Tipo de documento -->
+    <div class="mb-4">
+    {% if form.tipo_documento.errors %}
+        <p class="help is-danger">{{ form.tipo_documento.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-file-alt"></i>
+        {% if es_edicion %}
+        <select disabled class="input" id="tipo_documento-disabled">
+            {% for val, label in form.tipo_documento.field.choices %}
+            <option value="{{ val }}" {% if val == form.tipo_documento.value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="tipo_documento" value="{{ form.tipo_documento.value }}">
+        {% else %}
+        {{ form.tipo_documento }}
+        {% endif %}
+    </div>
+    <p id="tipo_documento-error" class="help is-danger is-hidden">Selecciona un tipo de documento válido.</p>
+    </div>
+
+
+    <!-- Número de documento -->
+    <div class="mb-4">
+    {% if form.nro_documento.errors %}
+        <p class="help is-danger">{{ form.nro_documento.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-hashtag"></i>
+        {% if es_edicion %}
+        <input 
+            type="text" 
+            name="nro_documento_disabled" 
+            value="{{ form.nro_documento.value }}" 
+            class="input" 
+            disabled
+        >
+        <input 
+            type="hidden" 
+            name="nro_documento" 
+            value="{{ form.nro_documento.value }}"
+        >
+        {% else %}
+        {{ form.nro_documento }}
+        {% endif %}
+    </div>
+    <p id="nro_documento-error" class="help is-danger is-hidden">
+        <!-- Este mensaje se sobrescribirá por JS -->
+        El número de documento no es válido.
+    </p>
+    </div>
+
+
+
+    <!-- Fecha de emisión -->
+    <div class="mb-4">
+    {% if form.fecha_emision.errors %}
+        <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-calendar-alt"></i>
+        {{ form.fecha_emision }}
+    </div>
+    </div>
+
+    <!-- Fecha de vencimiento -->
+    <div class="mb-4">
+    {% if form.fecha_vencimiento.errors %}
+        <p class="help is-danger">{{ form.fecha_vencimiento.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-calendar-check"></i>
+        {{ form.fecha_vencimiento }}
+    </div>
+    </div>
+
+    <!-- Monto total -->
+    <div class="mb-4">
+    {% if form.monto_total.errors %}
+        <p class="help is-danger">{{ form.monto_total.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-money-bill-wave"></i>
+        {{ form.monto_total }}
+    </div>
+    </div>
+
+    <!-- Monto abonado inicial -->
+    <div class="mb-4">
+    {% if form.monto_abonado_inicial.errors %}
+        <p class="help is-danger">{{ form.monto_abonado_inicial.errors.0 }}</p>
+    {% endif %}
+    <div class="input-div">
+        <i class="fas fa-coins"></i>
+        {{ form.monto_abonado_inicial }}
+    </div>
+    </div>
+
+
+    <button type="submit" class="btn-submit">
+      {% if es_edicion %}Actualizar{% else %}Registrar{% endif %} Cuenta por Pagar
+    </button>
+  </form>
 </div>
+
+<script>
+  function validarFormulario() {
+    let valido = true;
+
+    const proveedor = document.getElementById('proveedor');
+    const tipoDoc = document.getElementById('tipo_documento');
+    const nroDoc = document.getElementById('nro_documento');
+
+    const errorProveedor = document.getElementById('proveedor-error');
+    const errorTipoDoc = document.getElementById('tipo_documento-error');
+    const errorNroDoc = document.getElementById('nro_documento-error');
+    const nro = nroDoc.value.trim();
+    const tipoSeleccionado = tipoDoc.options[tipoDoc.selectedIndex].text;
+    // Validar proveedor
+    if (!proveedor.value.trim()) {
+      errorProveedor.classList.remove('is-hidden');
+      valido = false;
+    } else {
+      errorProveedor.classList.add('is-hidden');
+    }
+
+    // Validar tipo de documento
+    if (tipoSeleccionado === "Boleta") {
+    if (!/^\d{8}$/.test(nro)) {
+        errorNroDoc.textContent = "El número de DNI debe tener 8 dígitos.";
+        errorNroDoc.classList.remove('is-hidden');
+        valido = false;
+    } else {
+        errorNroDoc.classList.add('is-hidden');
+    }
+    } else if (tipoSeleccionado === "Factura") {
+    if (!/^\d{11}$/.test(nro)) {
+        errorNroDoc.textContent = "El número de RUC debe tener 11 dígitos.";
+        errorNroDoc.classList.remove('is-hidden');
+        valido = false;
+    } else {
+        errorNroDoc.classList.add('is-hidden');
+    }
+    } else {
+    errorNroDoc.textContent = "Selecciona un tipo de documento válido.";
+    errorNroDoc.classList.remove('is-hidden');
+    valido = false;
+    }
+
+    return valido;
+  }
+</script>
+
 {% endblock %}

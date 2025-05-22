@@ -1,6 +1,6 @@
 {% extends 'core/plantilla/app.html' %}
 {% load form_filters %}
-{% block title %}Registro de Proveedor{% endblock %}
+{% block title %}{% if es_edicion %}Editar{% else %}Registrar{% endif %} Proveedor{% endblock %}
 {% block content %}
 <div class="form-container">
   <div class="form-header">
@@ -71,6 +71,7 @@
       <p id="telefono-error" class="help is-danger is-hidden">El teléfono debe comenzar con 9 y tener 9 dígitos.</p>
     </div>
 
+    {% if es_edicion %}
     <!-- Estado toggle switch -->
     <div class="mb-6">
       {% if form.estado.errors %}
@@ -85,7 +86,7 @@
         <span class="estado-label" id="estado-text">Inactivo</span>
       </div>
     </div>
-
+    {% endif %}
     <button type="submit" class="btn-submit">
        {% if es_edicion %}Actualizar{% else %}Registrar{% endif %} Proveedor
     </button>
@@ -93,8 +94,8 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script>
     function validarFormulario() {
       let valido = true;
 
@@ -144,5 +145,6 @@
       actualizarEstado();
     });
   </script>
+
 {% endblock %}
 
