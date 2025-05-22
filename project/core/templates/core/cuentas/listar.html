@@ -76,8 +76,6 @@
                 <th>Nro Documento</th>
                 <th>F. Emisión</th>
                 <th>F. Vencimiento</th>
-                <th>Monto Total</th>
-                <th>Monto Abonado</th>
                 <th>Saldo Pendiente</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -91,8 +89,6 @@
                 <td>{{ cuenta.nro_documento }}</td>
                 <td>{{ cuenta.fecha_emision }}</td>
                 <td>{{ cuenta.fecha_vencimiento }}</td>
-                <td>S/ {{ cuenta.monto_total }}</td>
-                <td>S/ {{ cuenta.monto_abonado }}</td>
                 <td>S/ {{ cuenta.saldo_pendiente }}</td>
                 <td>
                     {% if cuenta.estado == 1 %}
@@ -112,6 +108,15 @@
                     <a href="{% url 'eliminar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-danger" title="Eliminar cuenta"
                        onclick="return confirm('¿Estás seguro de eliminar esta cuenta?')">
                         <i class="fas fa-trash"></i>
+                    </a>
+                    <a href="{% url 'crear_pago_para_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-success" title="Registrar Pago">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </a>
+                    <a href="{% url 'listar_pagos_por_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-info" title="Ver pagos">
+                        <i class="fas fa-list"></i>
+                    </a>
+                    <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-primary" title="Ver Detalles">
+                        <i class="fas fa-eye"></i>
                     </a>
                 </td>
             </tr>

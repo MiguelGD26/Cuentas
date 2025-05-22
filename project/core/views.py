@@ -218,6 +218,7 @@ def editar_cuenta(request, pk):
     'form': form,
     'es_edicion': True,
 })
+    
 # Eliminar cuenta
 @login_required
 def eliminar_cuenta(request, pk):
@@ -226,26 +227,41 @@ def eliminar_cuenta(request, pk):
     messages.success(request, "Cuenta por pagar eliminada")
     return redirect('listar_cuentas')
 
+def detalle_cuenta(request, cuenta_id):
+    cuenta = get_object_or_404(CuentaPorPagar, pk=cuenta_id)
+
+    pagos = Pago.objects.filter(cuenta=cuenta).order_by('-fecha_pago')
+
+    desde = request.GET.get('desde')
+    hasta = request.GET.get('hasta')
+
+    if desde:
+        pagos = pagos.filter(fecha_pago__gte=desde)
+    if hasta:
+        pagos = pagos.filter(fecha_pago__lte=hasta)
+
+    paginator = Paginator(pagos, 10)  # 10 pagos por página
+    page_number = request.GET.get('page')
+    pagos_page = paginator.get_page(page_number)
+
+    context = {
+        'cuenta': cuenta,
+        'pagos': pagos_page,
+        'desde': desde or '',
+        'hasta': hasta or '',
+    }
+    return render(request, 'core/cuentas/detalle_cuenta.html', context)
+
 # Listar pagos
 @login_required
-def listar_pagos(request):
-    pagos = Pago.objects.select_related('cuenta__proveedor', 'cuenta__tipo_documento').all()
-    proveedores = Proveedor.objects.all()
+def listar_pagos(request, cuenta_id):
+    cuenta = get_object_or_404(CuentaPorPagar, cuenta_id=cuenta_id)
+    pagos = cuenta.pagos.all().order_by('-fecha_pago')
 
-    # Obtener filtros desde GET
-    proveedor_id = request.GET.get('proveedor')
+    # Filtros de fecha (opcional)
     fecha_desde = request.GET.get('desde')
     fecha_hasta = request.GET.get('hasta')
 
-    # Filtro por proveedor (validar UUID)
-    if proveedor_id:
-        try:
-            proveedor_uuid = uuid.UUID(proveedor_id)
-            pagos = pagos.filter(cuenta__proveedor_id=proveedor_uuid)
-        except ValueError:
-            pass  # proveedor_id inválido, ignorar filtro
-        
-    # Filtro por fecha de pago
     if fecha_desde:
         try:
             desde_date = datetime.strptime(fecha_desde, '%Y-%m-%d').date()
@@ -260,44 +276,49 @@ def listar_pagos(request):
         except ValueError:
             pass
 
-    # Ordenar por fecha de pago descendente (los últimos primero)
-    pagos = pagos.order_by('-fecha_pago')
-
-    # Paginación (ejemplo: 10 por página)
     paginator = Paginator(pagos, 5)
     page = request.GET.get('page')
     pagos_paginados = paginator.get_page(page)
 
     context = {
+        'cuenta': cuenta,
         'pagos': pagos_paginados,
-        'proveedores': proveedores,
-        'proveedor_id': proveedor_id,
         'desde': fecha_desde,
         'hasta': fecha_hasta,
     }
 
     return render(request, 'core/pagos/listar.html', context)
 
-# Crear pago
-@login_required
-def crear_pago(request):
-    if request.method == 'POST':
-        form = PagoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Pago registrado")
-            return redirect('listar_pagos')
-    else:
-        form = PagoForm()
-    return render(request, 'core/pagos/formulario.html', {'form': form})
 
+# Crear pago
+def crear_pago_para_cuenta(request, cuenta_id):
+    cuenta = get_object_or_404(CuentaPorPagar, pk=cuenta_id)
+
+    if request.method == 'POST':
+        form = PagoForm(request.POST, initial={'cuenta': cuenta})
+        if form.is_valid():
+            pago = form.save(commit=False)
+            pago.cuenta = cuenta  # ← ASIGNACIÓN EXPLÍCITA
+            pago.save()
+            return redirect('listar_cuentas')
+    else:
+        form = PagoForm(initial={'cuenta': cuenta})
+        form.fields['cuenta'].queryset = CuentaPorPagar.objects.filter(pk=cuenta.pk)
+
+    return render(request, 'core/pagos/formulario.html',{
+    'form': form,
+    'es_edicion': False,
+    'cuenta': cuenta,
+    })
+    
 # Eliminar pago
 @login_required
 def eliminar_pago(request, pk):
     pago = get_object_or_404(Pago, pk=pk)
+    cuenta_id = pago.cuenta.cuenta_id  # Obtener cuenta antes de eliminar
     pago.delete()
     messages.success(request, "Pago eliminado")
-    return redirect('listar_pagos')
+    return redirect('listar_pagos_por_cuenta', cuenta_id=pago.cuenta.cuenta_id)  # Pasar cuenta_id para listar pagos de esa cuenta
 
 # Obtener saldo restante de una cuenta
 @login_required

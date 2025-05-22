@@ -18,11 +18,13 @@ urlpatterns = [
     path('cuentas/nueva/', views.crear_cuenta, name='crear_cuenta'),
     path('cuentas/editar/<uuid:pk>/', views.editar_cuenta, name='editar_cuenta'),
     path('cuentas/eliminar/<uuid:pk>/', views.eliminar_cuenta, name='eliminar_cuenta'),
+    path('cuentas/<uuid:cuenta_id>/detalle/', views.detalle_cuenta, name='detalle_cuenta'),
+
 
     # Pagos
-    path('pagos/', views.listar_pagos, name='listar_pagos'),
-    path('pagos/nuevo/', views.crear_pago, name='crear_pago'),
     path('pagos/eliminar/<uuid:pk>/', views.eliminar_pago, name='eliminar_pago'),
     path('obtener-saldo/', views.obtener_saldo, name='obtener_saldo'),
+    path('pagos/nuevo/<uuid:cuenta_id>/', views.crear_pago_para_cuenta, name='crear_pago_para_cuenta'),
+    path('pagos/cuenta/<uuid:cuenta_id>/', views.listar_pagos, name='listar_pagos_por_cuenta'),
 
 ]

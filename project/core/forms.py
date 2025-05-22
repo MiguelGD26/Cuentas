@@ -77,7 +77,7 @@ class CuentaPorPagarForm(forms.ModelForm):
         'class': 'form-control',
         'id': 'tipo_documento'
     })
-)
+    )
 
 
     nro_documento = forms.CharField(
@@ -132,59 +132,52 @@ class CuentaPorPagarForm(forms.ModelForm):
             'fecha_emision', 'fecha_vencimiento',
             'monto_total', 'monto_abonado_inicial'
         ]
-        widgets = {
-            'fecha_emision': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_vencimiento': forms.DateInput(attrs={'type': 'date'}),
-
-            'proveedor': forms.Select(attrs={
-                'class': 'form-control',
-                'id': 'proveedor'
-
-            }),
-            'tipo_documento': forms.Select(attrs={
-                'class': 'form-control',
-                'id': 'tipo_documento'
-            }),
-            'nro_documento': forms.TextInput(attrs={
-                'class': 'form-control',
-                'id': 'nro_documento',
-                'placeholder': 'Ingrese el número del documento'
-            }),
-            'fecha_emision': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control',
-                'id': 'fecha_emision'
-            }),
-            'fecha_vencimiento': forms.DateInput(attrs={
-                'type': 'date',
-                'class': 'form-control',
-                'id': 'fecha_vencimiento'
-            }),
-            'monto_total': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'id': 'monto_total',
-                'placeholder': 'Ingrese el monto total'
-            }),
-            'monto_abonado_inicial': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'id': 'monto_abonado_inicial',
-                'placeholder': 'Ingrese el monto abonado inicial'
-            }),
-        }
 
     def clean(self):
         cleaned_data = super().clean()
         total = cleaned_data.get("monto_total")
         abonado = cleaned_data.get("monto_abonado_inicial")
+        fecha_emision = cleaned_data.get("fecha_emision")
+        fecha_vencimiento = cleaned_data.get("fecha_vencimiento")
+
         if total is not None and abonado is not None and abonado > total:
             raise forms.ValidationError("El monto abonado inicial no puede ser mayor que el monto total.")
+        
+        if fecha_emision and fecha_vencimiento and fecha_emision > fecha_vencimiento:
+            raise forms.ValidationError("La fecha de emisión no puede ser posterior a la fecha de vencimiento.")
+        
+        return cleaned_data
+
 
 class PagoForm(forms.ModelForm):
+    cuenta = forms.ModelChoiceField(
+        queryset=CuentaPorPagar.objects.all(),
+        required=True
+    )
+    fecha_pago = forms.DateField(
+    
+    widget=forms.DateInput(attrs={
+        'type': 'text',
+        'class': 'form-control',
+        'id': 'fecha_pago',
+        'autocomplete': 'off',
+        'placeholder': 'Ingresa Fecha'
+    })
+)
+
     class Meta:
         model = Pago
         fields = ['cuenta', 'fecha_pago', 'monto_pagado']
         widgets = {
-            'fecha_pago': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_pago': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'id': 'fecha_pago'
+            }),
+            'cuenta': forms.Select(attrs={
+                'class': 'form-control', 
+                'disabled': 'disabled'  
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -211,6 +204,10 @@ class PagoForm(forms.ModelForm):
         cleaned_data = super().clean()
         cuenta = cleaned_data.get("cuenta")
         monto = cleaned_data.get("monto_pagado")
+        fecha_pago = cleaned_data.get("fecha_pago")
+
+        if not fecha_pago:
+            raise ValidationError("La fecha de pago es obligatoria.")
 
         if cuenta is None or monto is None:
             return cleaned_data

@@ -1,26 +1,14 @@
 {% extends 'core/plantilla/app.html' %}
 {% block content %}
 <h2>Pagos</h2>
-<a href="{% url 'crear_pago' %}" class="btn btn-success mb-3">
-    <i class="bi bi-currency-dollar"></i> Nuevo pago
-</a>
 
+<!-- FILTROS solo por fecha -->
 <form method="get" class="row g-3 mb-4">
     <div class="col-md-4">
-        <select name="proveedor" class="form-select">
-            <option value="">-- Proveedor --</option>
-            {% for proveedor in proveedores %}
-                <option value="{{ proveedor.proveedor_id }}" {% if proveedor_id == proveedor.proveedor_id|stringformat:"s" %}selected{% endif %}>
-                    {{ proveedor.nombre }}
-                </option>
-            {% endfor %}
-        </select>
+        <input type="date" name="desde" class="form-control" value="{{ desde }}" placeholder="Desde">
     </div>
-    <div class="col-md-3">
-        <input type="date" name="desde" class="form-control" value="{{ desde }}">
-    </div>
-    <div class="col-md-3">
-        <input type="date" name="hasta" class="form-control" value="{{ hasta }}">
+    <div class="col-md-4">
+        <input type="date" name="hasta" class="form-control" value="{{ hasta }}" placeholder="Hasta">
     </div>
     <div class="col-md-1 d-grid">
         <button type="submit" class="btn btn-primary">
@@ -28,8 +16,11 @@
         </button>
     </div>
     <div class="col-md-1 d-grid">
-        <a href="{% url 'listar_pagos' %}" class="btn btn-secondary">Limpiar</a>
+        <a href="{% url 'listar_pagos_por_cuenta' cuenta.cuenta_id %}" class="btn btn-secondary d-flex justify-content-center align-items-center">
+            <i class="fas fa-eraser"></i>
+        </a>
     </div>
+
 </form>
 
 <div class="table-responsive">
@@ -51,6 +42,12 @@
             <td>{{ pago.fecha_pago }}</td>
             <td>S/ {{ pago.monto_pagado }}</td>
             <td>
+                <!-- Ver pagos de esta cuenta -->
+                <a href="{% url 'listar_pagos_por_cuenta' pago.cuenta.cuenta_id %}" class="btn btn-sm btn-info" title="Ver pagos de esta cuenta">
+                    <i class="fas fa-list"></i>
+                </a>
+
+                <!-- Eliminar pago -->
                 <a href="{% url 'eliminar_pago' pago.pago_id %}" class="btn btn-sm btn-danger" title="Eliminar pago"
                    onclick="return confirm('¿Estás seguro de eliminar este pago?')">
                     <i class="bi bi-trash-fill text-white"></i>
@@ -63,6 +60,7 @@
     </tbody>
 </table>
 </div>
+
 {% if pagos.has_other_pages %}
 <nav>
     <ul class="pagination">
@@ -86,4 +84,11 @@
     </ul>
 </nav>
 {% endif %}
+
+<!-- Botón para volver al listado -->
+<a href="{% url 'listar_cuentas' %}" class="button is-link mt-6">
+    <span class="icon"><i class="fas fa-arrow-left"></i></span>
+    <span>Volver al listado</span>
+</a>
+
 {% endblock %}
