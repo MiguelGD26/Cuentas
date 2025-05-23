@@ -1,11 +1,11 @@
 [phases.setup]
 nixPkgs = [
-  "python311Full",     # Incluye pip preinstalado
-  "openssl",
-  "postgresql",
+  "python311Full",     # Python con pip incluido
   "gcc",
   "libffi",
-  "libmysqlclient"
+  "openssl",
+  "postgresql",        # si usas PostgreSQL
+  "libmysqlclient"     # si usas MySQL
 ]
 
 [phases.install]
@@ -16,6 +16,3 @@ cmds = [
 
 [start]
 cmd = "gunicorn project.wsgi:application"
-
-[variables]
-PYTHON = "python3"
