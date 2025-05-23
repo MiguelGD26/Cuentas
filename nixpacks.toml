@@ -5,8 +5,11 @@ nixPkgs = [
   "python311Packages.setuptools",
   "python311Packages.wheel",
   "postgresql",
-  "python311Packages.psycopg2"
+  "python311Packages.psycopg2",
+  "mariadb-connector-c",
+  "pkgconfig"
 ]
+
 
 [phases.install]
 cmds = [
