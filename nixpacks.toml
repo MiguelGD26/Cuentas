@@ -1,13 +1,11 @@
 [phases.setup]
-nixPkgs = ["python311Full", "python311Packages.virtualenv"]
+nixPkgs = ["python311Full", "python311Packages.pip"]
 
 [phases.install]
 cmds = [
-  "python3 -m virtualenv /opt/venv",
-  "source /opt/venv/bin/activate",
-  "pip install --upgrade pip",
-  "pip install -r requirements.txt"
+  "python3 -m pip install --upgrade pip",
+  "python3 -m pip install -r requirements.txt"
 ]
 
 [start]
-cmd = "/opt/venv/bin/gunicorn project.wsgi:application"
+cmd = "gunicorn project.wsgi:application"
