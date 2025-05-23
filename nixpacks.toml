@@ -1,16 +1,21 @@
 [phases.setup]
-nixPkgs = ["python311" "libmysqlclient" "openssl" "gcc" "postgresql"]
+# Incluye Python 3.11 con pip, y las librerías necesarias para compilar MySQL y PostgreSQL
+nixPkgs = [
+  "python311Full",      # Python con pip incluido
+  "openssl",            # Necesario para 'cryptography'
+  "libmysqlclient",     # Necesario para 'mysqlclient'
+  "postgresql",         # Necesario para 'psycopg2-binary'
+  "gcc"                 # Compilador para módulos con C
+]
 
 [phases.install]
-cmds = [
-  "python -m pip install -r requirements.txt"
-]
-
-[phases.build]
-cmds = [
-  "python manage.py collectstatic --noinput",
-  "python manage.py migrate"
-]
+# Instala dependencias usando pip
+cmds = ["python -m pip install --upgrade pip", "pip install -r requirements.txt"]
 
 [start]
-cmd = "gunicorn project.wsgi:application --bind 0.0.0.0:$PORT"
+# Comando para arrancar tu app Django con gunicorn
+cmd = "gunicorn project.wsgi:application"
+
+[variables]
+# Asegura que python se resuelva correctamente si es necesario
+PYTHON = "python3"
