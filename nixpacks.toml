@@ -1,12 +1,5 @@
 [phases.setup]
-nixPkgs = [
-  "python311Full",     # Python con pip incluido
-  "gcc",
-  "libffi",
-  "openssl",
-  "postgresql",        # si usas PostgreSQL
-  "libmysqlclient"     # si usas MySQL
-]
+nixPkgs = ["python311Full"]
 
 [phases.install]
 cmds = [
