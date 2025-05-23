@@ -10,16 +10,19 @@ nixPkgs = [
   "python311Packages.wheel"
 ]
 
+[phases.build]
+commands = [
+  "export MYSQLCLIENT_CFLAGS=$(pkg-config --cflags mariadb)",
+  "export MYSQLCLIENT_LDFLAGS=$(pkg-config --libs mariadb)",
+  "pip install --no-cache-dir --break-system-packages -r requirements.txt"
+]
+
 
 [phases.install]
 cmds = [
   "pip install --no-cache-dir --break-system-packages -r requirements.txt"
 ]
 
-[phases.build]
-cmds = [
-  "python manage.py collectstatic --noinput"
-]
-
 [start]
 cmd = "gunicorn project.wsgi:application --bind 0.0.0.0:$PORT"
+
