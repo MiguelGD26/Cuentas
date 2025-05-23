@@ -1,23 +1,20 @@
 [phases.setup]
-# Instalamos Python con pip y los paquetes necesarios
 nixPkgs = [
-  "python311Full",       # Python 3.11 completo con pip
+  "python311Full",     # Incluye pip preinstalado
   "openssl",
-  "libmysqlclient",
   "postgresql",
-  "gcc"
+  "gcc",
+  "libffi",
+  "libmysqlclient"
 ]
 
 [phases.install]
-# Instalación de dependencias del proyecto
 cmds = [
-  "python3 -m ensurepip",  # Asegura que pip esté presente
-  "python3 -m pip install --upgrade pip",
+  "pip install --upgrade pip",
   "pip install -r requirements.txt"
 ]
 
 [start]
-# Comando para producción
 cmd = "gunicorn project.wsgi:application"
 
 [variables]
