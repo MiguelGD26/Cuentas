@@ -1,12 +1,12 @@
 [phases.setup]
 nixPkgs = [
-  "mariadb-connector-c"
-  "pkg-config"
-  "postgresql"
-  "python311Full"
-  "python311Packages.pip"
-  "python311Packages.psycopg2"
-  "python311Packages.setuptools"
+  "mariadb-connector-c",
+  "pkg-config",
+  "postgresql",
+  "python311Full",
+  "python311Packages.pip",
+  "python311Packages.psycopg2",
+  "python311Packages.setuptools",
   "python311Packages.wheel"
 ]
 
