@@ -8,8 +8,7 @@ nixPkgs = [
   "python311Packages.psycopg2"
   "python311Packages.setuptools"
   "python311Packages.wheel"
-];
-
+]
 
 
 [phases.install]
