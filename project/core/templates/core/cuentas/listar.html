@@ -109,12 +109,6 @@
                        onclick="return confirm('¿Estás seguro de eliminar esta cuenta?')">
                         <i class="fas fa-trash"></i>
                     </a>
-                    <a href="{% url 'crear_pago_para_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-success" title="Registrar Pago">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </a>
-                    <a href="{% url 'listar_pagos_por_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-info" title="Ver pagos">
-                        <i class="fas fa-list"></i>
-                    </a>
                     <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-primary" title="Ver Detalles">
                         <i class="fas fa-eye"></i>
                     </a>

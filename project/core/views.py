@@ -300,7 +300,7 @@ def crear_pago_para_cuenta(request, cuenta_id):
             pago = form.save(commit=False)
             pago.cuenta = cuenta  # ← ASIGNACIÓN EXPLÍCITA
             pago.save()
-            return redirect('listar_cuentas')
+            return redirect('detalle_cuenta', cuenta_id=cuenta.pk)
     else:
         form = PagoForm(initial={'cuenta': cuenta})
         form.fields['cuenta'].queryset = CuentaPorPagar.objects.filter(pk=cuenta.pk)
@@ -309,6 +309,7 @@ def crear_pago_para_cuenta(request, cuenta_id):
     'form': form,
     'es_edicion': False,
     'cuenta': cuenta,
+    'cuenta_id': cuenta.pk, 
     })
     
 # Eliminar pago
@@ -318,7 +319,7 @@ def eliminar_pago(request, pk):
     cuenta_id = pago.cuenta.cuenta_id  # Obtener cuenta antes de eliminar
     pago.delete()
     messages.success(request, "Pago eliminado")
-    return redirect('listar_pagos_por_cuenta', cuenta_id=pago.cuenta.cuenta_id)  # Pasar cuenta_id para listar pagos de esa cuenta
+    return redirect('detalle_cuenta', cuenta_id=pago.cuenta.cuenta_id)  # Pasar cuenta_id para listar pagos de esa cuenta
 
 # Obtener saldo restante de una cuenta
 @login_required

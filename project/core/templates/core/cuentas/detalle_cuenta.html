@@ -81,50 +81,100 @@
     <!-- Historial de Pagos -->
     <h3 class="title is-4 has-text-link mb-4">Historial de Pagos</h3>
 
-    <!-- Filtros por fecha -->
-    <form method="get" class="columns is-multiline is-vcentered mb-5">
-        <div class="column is-4">
-            <input type="date" name="desde" class="input" value="{{ desde }}" placeholder="Desde">
+    <!-- Mostrar monto abonado inicial -->
+    <div class="notification is-info is-light">
+        <span class="icon"><i class="fas fa-coins"></i></span>
+        <strong>Monto Abonado Inicial:</strong> S/ {{ cuenta.monto_abonado_inicial }}
+    </div>
+
+    <!-- Botón registrar pago -->
+    <div class="mb-4">
+        <a href="{% url 'crear_pago_para_cuenta' cuenta.cuenta_id %}" class="button is-success" style="background-color:rgb(23, 159, 23); color: white; text-decoration: none;">
+            <span class="icon"><i class="fas fa-money-bill-wave"></i></span>
+            <span>Registrar Pago</span>
+        </a>
+    </div>
+
+    <!-- Mensajes flash en historial de pagos -->
+    {% if messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+    {% endif %}
+    <!-- Filtro por fecha -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="date" name="desde" class="form-control" value="{{ desde }}" placeholder="Desde">
         </div>
-        <div class="column is-4">
-            <input type="date" name="hasta" class="input" value="{{ hasta }}" placeholder="Hasta">
+        <div class="col-md-4">
+            <input type="date" name="hasta" class="form-control" value="{{ hasta }}" placeholder="Hasta">
         </div>
-        <div class="column is-2">
-            <button type="submit" class="button is-link is-fullwidth">
-                <span class="icon"><i class="fas fa-filter"></i></span>
-                <span>Filtrar</span>
+        <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Filtrar
             </button>
         </div>
-        <div class="column is-2">
-            <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="button is-light is-fullwidth">
-                <span class="icon"><i class="fas fa-eraser"></i></span>
-                <span>Limpiar</span>
+        <div class="col-md-1 d-grid">
+            <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-secondary d-flex justify-content-center align-items-center" title="Limpiar filtros">
+                <i class="fas fa-eraser"></i>
             </a>
         </div>
     </form>
 
-    <div class="table-container">
-        <table class="table is-fullwidth is-striped is-hoverable is-bordered">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Monto</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pago in pagos %}
-                <tr>
-                    <td>{{ pago.fecha_pago }}</td>
-                    <td>S/ {{ pago.monto_pagado }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="2" class="has-text-centered">No hay pagos registrados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pago in pagos %}
+            <tr>
+                <td>{{ pago.fecha_pago }}</td>
+                <td>S/ {{ pago.monto_pagado }}</td>
+                <td>
+                    <a href="{% url 'eliminar_pago' pago.pago_id %}" class="btn btn-sm btn-danger"
+                    onclick="return confirm('¿Estás seguro de eliminar este pago?')">
+                    <i class="bi bi-trash-fill text-white"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No hay pagos registrados para esta cuenta.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if pagos.has_other_pages %}
+    <nav>
+        <ul class="pagination">
+            {% if pagos.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagos.previous_page_number }}&desde={{ desde }}&hasta={{ hasta }}">Anterior</a>
+            </li>
+            {% endif %}
+            {% for num in pagos.paginator.page_range %}
+            <li class="page-item {% if pagos.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&desde={{ desde }}&hasta={{ hasta }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if pagos.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagos.next_page_number }}&desde={{ desde }}&hasta={{ hasta }}">Siguiente</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+
 
     {% if pagos.has_other_pages %}
     <nav class="pagination is-centered" role="navigation" aria-label="pagination">
@@ -158,3 +208,13 @@
     </a>
 </div>
 {% endblock %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const closeButtons = document.querySelectorAll('.alert-dismissible .btn-close');
+    closeButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        this.parentElement.style.display = 'none';
+      });
+    });
+  });
+</script>

@@ -68,9 +68,10 @@
       <button type="submit" class="btn btn-success" id="btn-guardar">
         <i class="fas fa-save me-2"></i> Guardar Pago
       </button>
-      <a href="{% url 'listar_cuentas' %}" class="btn btn-danger">
+      <a href="{% url 'detalle_cuenta' cuenta.pk %}" class="btn btn-danger">
         <i class="fas fa-ban me-2"></i> Cancelar
       </a>
+
     </div>
 
   </form>
