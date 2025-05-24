@@ -84,32 +84,31 @@
 
     <!-- Filtro por fecha -->
     <form method="get" class="row g-2 mb-3 align-items-end">
-    <div class="col-md-4">
+      <div class="col-md-4">
       <label class="form-label">Desde</label>
-      <div class="input-div d-flex align-items-center gap-2">
-        <i class="fas fa-calendar-alt"></i>
-        <input type="text" name="desde" class="form-control" value="{{ desde }}" placeholder="Desde">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fas fa-calendar-alt text-danger"></i>
+        <input type="text" id="desde" name="desde" class="form-control" value="{{ desde }}" placeholder="Desde">
       </div>
-    </div>
-    <div class="col-md-4">
-      <label class="form-label">Hasta</label>
-      <div class="input-div d-flex align-items-center gap-2">
-        <i class="fas fa-calendar-check"></i>
-        <input type="text" name="hasta" class="form-control" value="{{ hasta }}" placeholder="Hasta">
       </div>
-    </div>
-    <div class="col-md-2 d-grid">
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-search me-1"></i> Filtrar
-      </button>
-    </div>
-    <div class="col-md-2 d-grid">
-      <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-light" title="Limpiar filtros">
-        <i class="fas fa-eraser"></i>
-      </a>
-    </div>
-  </form>
-
+      <div class="col-md-4">
+        <label class="form-label">Hasta</label>
+        <div class="d-flex align-items-center gap-2">
+          <i class="fas fa-calendar-check text-danger"></i>
+          <input type="text" id="hasta" name="hasta" class="form-control" value="{{ hasta }}" placeholder="Hasta">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="fas fa-search"></i> Filtrar
+        </button>
+      </div>
+      <div class="col-md-2">
+        <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-secondary w-100" title="Limpiar filtros">
+          <i class="fas fa-eraser"></i>
+        </a>
+      </div>
+    </form>
 
     <table class="table table-bordered table-striped">
       <thead>
@@ -172,8 +171,6 @@
     </a>
   </div>
 </section>
-{% endblock %}
-
 <script>
   // Cierre de alertas con Bootstrap
   document.addEventListener('DOMContentLoaded', function () {
@@ -186,16 +183,19 @@
   });
 </script>
 
-<!-- Flatpickr para campos de fecha -->
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    flatpickr("input[name='desde']", {
+  document.addEventListener("DOMContentLoaded", function () {
+    flatpickr("#desde", {
       dateFormat: "Y-m-d",
-      locale: "es"
+      allowInput: true
     });
-    flatpickr("input[name='hasta']", {
+    flatpickr("#hasta", {
       dateFormat: "Y-m-d",
-      locale: "es"
+      allowInput: true
     });
   });
 </script>
+
+
+{% endblock %}
+
