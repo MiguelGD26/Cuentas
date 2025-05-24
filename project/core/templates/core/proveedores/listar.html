@@ -2,107 +2,116 @@
 {% block title %}Proveedores{% endblock %}
 
 {% block content %}
-<h2>Proveedores</h2>
+<h2 class="mb-4">Proveedores</h2>
+
 <a href="{% url 'crear_proveedor' %}" class="btn btn-success mb-3">
-    <i class="bi bi-person-plus-fill"></i> Nuevo proveedor
+    <i class="fas fa-user-plus"></i> Nuevo proveedor
 </a>
 
-
 <form method="get" class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="input-div">
-            <i class="fas fa-user"></i>
-            <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ nombre }}">
-        </div>
+  <div class="col-md-3">
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="fas fa-user text-danger"></i>
+      </span>
+      <input type="text" name="nombre" class="form-control border-start-0" placeholder="Nombre" value="{{ nombre }}">
     </div>
+  </div>
 
-    <div class="col-md-3">
-        <div class="input-div">
-            <i class="fas fa-file-alt"></i>
-            <input type="text" name="ruc" class="form-control" placeholder="RUC" value="{{ ruc }}">
-        </div>
+  <div class="col-md-3">
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="fas fa-file-alt text-danger"></i>
+      </span>
+      <input type="text" name="ruc" class="form-control border-start-0" placeholder="RUC" value="{{ ruc }}">
     </div>
-    <div class="col-md-3">
-        <div class="input-div">
-            <i class="fas fa-toggle-on"></i>
-            <select name="estado" class="form-select">
-                <option value=""> Estado </option>
-                <option value="1" {% if estado == "1" %}selected{% endif %}>Activo</option>
-                <option value="9" {% if estado == "9" %}selected{% endif %}>Inactivo</option>
-            </select>
-        </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="fas fa-toggle-on text-danger"></i>
+      </span>
+      <select name="estado" class="form-select border-start-0">
+        <option value="">Estado</option>
+        <option value="1" {% if estado == "1" %}selected{% endif %}>Activo</option>
+        <option value="9" {% if estado == "9" %}selected{% endif %}>Inactivo</option>
+      </select>
     </div>
-    <div class="col-md-1 d-grid">
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-search"></i>
-        </button>
-    </div>
-    <div class="col-md-1 d-grid">
-        <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary d-flex justify-content-center align-items-center">
-            <i class="fas fa-eraser"></i>
-        </a>
-    </div>
+  </div>
+
+  <div class="col-md-1 d-grid">
+    <button type="submit" class="btn btn-primary w-100">
+      <i class="fas fa-search me-1"></i> 
+    </button>
+  </div>
+
+  <div class="col-md-1 d-grid">
+    <a href="{% url 'listar_cuentas' %}" class="btn btn-outline-secondary w-100">
+      <i class="fas fa-eraser"></i> 
+    </a>
+  </div>
 </form>
+
+
 <div class="table-responsive">
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>RUC</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for proveedor in proveedores %}
-        <tr>
-            <td>{{ proveedor.nombre }}</td>
-            <td>{{ proveedor.ruc }}</td>
-            <td>{{ proveedor.correo }}</td>
-            <td>{{ proveedor.telefono }}</td>
-            <td>
-                {% if proveedor.estado == 1 %}
-                    <span class="badge bg-success">Activa</span>
-                {% elif proveedor.estado == 9 %}
-                    <span class="badge bg-danger">Inactiva</span>
-                {% else %}
-                    <span class="badge bg-secondary">Desconocido</span>
-                {% endif %}
-            </td>
-
-            <td>
-                <a href="{% url 'editar_proveedor' proveedor.pk %}" class="btn btn-sm btn-warning" title="Editar proveedor">
-                    <i class="bi bi-pencil-fill"></i>
-                </a>
-
-                <a href="{% url 'eliminar_proveedor' proveedor.pk %}" class="btn btn-sm btn-danger" title="Eliminar proveedor" onclick="return confirm('¿Eliminar este proveedor?')">
-                    <i class="bi bi-trash-fill text-white"></i>
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6">No hay proveedores registrados.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table class="table align-middle table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Nombre</th>
+                <th>RUC</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+                <td>{{ proveedor.nombre }}</td>
+                <td>{{ proveedor.ruc }}</td>
+                <td>{{ proveedor.correo }}</td>
+                <td>{{ proveedor.telefono }}</td>
+                <td>
+                    {% if proveedor.estado == 1 %}
+                        <span class="badge bg-success">Activa</span>
+                    {% elif proveedor.estado == 9 %}
+                        <span class="badge bg-danger">Inactiva</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Desconocido</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'editar_proveedor' proveedor.pk %}" class="btn btn-warning btn-sm" title="Editar proveedor">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'eliminar_proveedor' proveedor.pk %}" class="btn btn-danger btn-sm" title="Eliminar proveedor" onclick="return confirm('¿Eliminar este proveedor?')">
+                        <i class="fas fa-trash-alt text-white"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center">No hay proveedores registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+
+
 {% if proveedores.has_other_pages %}
 <nav>
-    <ul class="pagination">
+    <ul class="pagination justify-content-center">
         {% if proveedores.has_previous %}
         <li class="page-item">
             <a class="page-link" href="?page={{ proveedores.previous_page_number }}">Anterior</a>
         </li>
         {% endif %}
-
         {% for num in proveedores.paginator.page_range %}
         <li class="page-item {% if proveedores.number == num %}active{% endif %}">
             <a class="page-link" href="?page={{ num }}">{{ num }}</a>
         </li>
         {% endfor %}
-
         {% if proveedores.has_next %}
         <li class="page-item">
             <a class="page-link" href="?page={{ proveedores.next_page_number }}">Siguiente</a>

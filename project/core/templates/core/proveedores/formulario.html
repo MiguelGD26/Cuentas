@@ -1,155 +1,164 @@
 {% extends 'core/plantilla/app.html' %}
+{% load static %}
 {% load form_filters %}
 {% block title %}{% if es_edicion %}Editar{% else %}Registrar{% endif %} Proveedor{% endblock %}
 {% block content %}
-<div class="form-container">
-  <div class="form-header">
-    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920216.png" alt="Icono proveedor">
-    <h2>{% if es_edicion %}Editar{% else %}Registrar{% endif %} Proveedor</h2>
+<div class="container my-4" style="max-width: 900px;">
+  <div class="card shadow">
+    <div class="card-header {% if es_edicion %}bg-primary{% else %}bg-success{% endif %} text-white">
+      <h4 class="mb-0 text-center text-md-start">{% if es_edicion %}Editar{% else %}Registrar{% endif %} Proveedor</h4>
+    </div>
+    <div class="card-body">
+      <div class="row g-4 align-items-center mt-3">
+        <!-- Columna imagen -->
+        <div class="col-12 col-md-4 text-center">
+          <img src="{% static 'img/usuario.gif' %}" alt="Icono proveedor" style="width: 100%; height:  100%;" class="img-fluid">
+        </div>
+
+        <!-- Columna formulario -->
+        <div class="col-12 col-md-8">
+          <form  method="POST" onsubmit="return validarFormulario(); ">
+            {% csrf_token %}
+
+            <!-- Nombre -->
+            <div class="mb-3">
+              {% if form.nombre.errors %}
+                <p class="text-danger small">{{ form.nombre.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user text-danger"></i></span>
+                {{ form.nombre|add_class:"form-control" }}
+              </div>
+              <p id="nombre-error" class="text-danger small d-none">El nombre es obligatorio.</p>
+            </div>
+
+            <!-- RUC -->
+            <div class="mb-3">
+              {% if form.ruc.errors %}
+                <p class="text-danger small">{{ form.ruc.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card text-danger"></i></span>
+                {{ form.ruc|add_class:"form-control" }}
+              </div>
+              <p id="ruc-error" class="text-danger small d-none">El RUC debe tener 11 dígitos numéricos.</p>
+            </div>
+
+            <!-- Dirección -->
+            <div class="mb-3">
+              {% if form.direccion.errors %}
+                <p class="text-danger small">{{ form.direccion.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                {{ form.direccion|add_class:"form-control" }}
+              </div>
+              <p id="direccion-error" class="text-danger small d-none">La dirección es obligatoria.</p>
+            </div>
+
+            <!-- Correo -->
+            <div class="mb-3">
+              {% if form.correo.errors %}
+                <p class="text-danger small">{{ form.correo.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope text-danger"></i></span>
+                {{ form.correo|add_class:"form-control" }}
+              </div>
+              <p id="correo-error" class="text-danger small d-none">El correo no tiene un formato válido.</p>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="mb-3">
+              {% if form.telefono.errors %}
+                <p class="text-danger small">{{ form.telefono.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone text-danger"></i></span>
+                {{ form.telefono|add_class:"form-control" }}
+              </div>
+              <p id="telefono-error" class="text-danger small d-none">El teléfono debe comenzar con 9 y tener 9 dígitos.</p>
+            </div>
+
+            {% if es_edicion %}
+            <!-- Estado toggle switch -->
+            <div class="mb-6">
+              {% if form.estado.errors %}
+                <p class="help is-danger">{{ form.estado.errors.0 }}</p>
+              {% endif %}
+              <div class="input-div" style="justify-content: flex-start;">
+                <i class="fas fa-toggle-on"></i>
+                <label class="toggle-switch ml-3" for="estado">
+                  <input type="checkbox" id="estado" name="estado"
+                    {% if form.estado.value == True %}
+                      checked
+                    {% elif form.estado.value == 'True' %}
+                      checked
+                    {% elif form.estado.value == '1' %}
+                      checked
+                    {% endif %} />
+                  <span class="slider"></span>
+                </label>
+                <span class="estado-label" id="estado-text">Inactivo</span>
+              </div>
+            </div>
+          {% endif %}
+
+            <!-- Botones -->
+            <div class="mt-4 d-flex justify-content-center justify-content-md-start gap-3">  {# mt-4 agrega espacio #}
+              <button type="submit" class="btn btn-success px-4">
+                <i class="fas fa-save me-2"></i>{% if es_edicion %}Actualizar{% else %}Registrar{% endif %}
+              </button>
+              <a href="{% url 'listar_proveedores' %}" class="btn btn-danger px-4">
+                <i class="fas fa-ban me-2"></i>Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <form method="POST" onsubmit="return validarFormulario();">
-    {% csrf_token %}
-
-    <!-- Nombre -->
-    <div class="mb-4">
-      {% if form.nombre.errors %}
-        <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-        <i class="fas fa-user"></i>
-        {{ form.nombre }}
-      </div>
-      <p id="nombre-error" class="help is-danger is-hidden">El nombre es obligatorio.</p>
-    </div>
-
-    <!-- RUC -->
-    <div class="mb-4">
-      {% if form.ruc.errors %}
-        <p class="help is-danger">{{ form.ruc.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-        <i class="fas fa-id-card"></i>
-        {{ form.ruc }}
-      </div>
-      <p id="ruc-error" class="help is-danger is-hidden">El RUC debe tener 11 dígitos numéricos.</p>
-    </div>
-
-    <!-- Dirección -->
-    <div class="mb-4">
-      {% if form.direccion.errors %}
-        <p class="help is-danger">{{ form.direccion.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-        <i class="fas fa-map-marker-alt"></i>
-        {{ form.direccion }}
-      </div>
-      <p id="direccion-error" class="help is-danger is-hidden">La dirección es obligatoria.</p>
-    </div>
-
-    <!-- Correo -->
-    <div class="mb-4">
-      {% if form.correo.errors %}
-        <p class="help is-danger">{{ form.correo.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-        <i class="fas fa-envelope"></i>
-        {{ form.correo }}
-      </div>
-      <p id="correo-error" class="help is-danger is-hidden">El correo no tiene un formato válido.</p>
-    </div>
-
-    <!-- Teléfono -->
-    <div class="mb-4">
-      {% if form.telefono.errors %}
-        <p class="help is-danger">{{ form.telefono.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-        <i class="fas fa-phone"></i>
-        {{ form.telefono }}
-      </div>
-      <p id="telefono-error" class="help is-danger is-hidden">El teléfono debe comenzar con 9 y tener 9 dígitos.</p>
-    </div>
-
-    {% if es_edicion %}
-    <!-- Estado toggle switch -->
-    <div class="mb-6">
-      {% if form.estado.errors %}
-        <p class="help is-danger">{{ form.estado.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div" style="justify-content: flex-start;">
-        <i class="fas fa-toggle-on"></i>
-        <label class="toggle-switch ml-3" for="estado">
-          <input type="checkbox" id="estado" name="estado" {% if form.estado.value == True or form.estado.value == 'True' or form.estado.value == '1' %}checked{% endif %} />
-          <span class="slider"></span>
-        </label>
-        <span class="estado-label" id="estado-text">Inactivo</span>
-      </div>
-    </div>
-    {% endif %}
-    <div class="d-flex justify-content-center gap-3 mt-4">
-      <button type="submit" class="btn btn-success" id="btn-guardar">
-        <i class="fas fa-save me-2"></i>{% if es_edicion %}Actualizar{% else %}Registrar{% endif %} Proveedor
-      </button>
-      <a href="{% url 'listar_cuentas' %}" class="btn btn-danger">
-        <i class="fas fa-ban me-2"></i> Cancelar
-      </a>
-    </div>
-  </form>
 </div>
 
-<!-- Scripts -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <script>
-    function validarFormulario() {
-      let valido = true;
+<!-- FontAwesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
-      const campos = [
-        { id: 'nombre', error: 'nombre-error' },
-        { id: 'ruc', error: 'ruc-error', valid: v => /^\d{11}$/.test(v) },
-        { id: 'direccion', error: 'direccion-error' },
-        { id: 'correo', error: 'correo-error', valid: v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) },
-        { id: 'telefono', error: 'telefono-error', valid: v => /^9\d{8}$/.test(v) },
-      ];
+<script>
+  function validarFormulario() {
+    let valido = true;
+    const campos = [
+      { id: 'nombre', error: 'nombre-error' },
+      { id: 'ruc', error: 'ruc-error', valid: v => /^\d{11}$/.test(v) },
+      { id: 'direccion', error: 'direccion-error' },
+      { id: 'correo', error: 'correo-error', valid: v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) },
+      { id: 'telefono', error: 'telefono-error', valid: v => /^9\d{8}$/.test(v) },
+    ];
 
-      campos.forEach(({ id, error, valid }) => {
-        const input = document.getElementById(id);
-        const msg = document.getElementById(error);
-        const value = input.value.trim();
-
-        if (!value || (valid && !valid(value))) {
-          msg.classList.remove('is-hidden');
-          valido = false;
-        } else {
-          msg.classList.add('is-hidden');
-        }
-      });
-
-      // Validar toggle estado (checkbox)
-      const estado = document.getElementById('estado');
-      const estadoError = document.getElementById('estado-error');
-      return valido;
-    }
-
-    // Cambiar texto y color del toggle estado
-    document.addEventListener('DOMContentLoaded', () => {
-      const estado = document.getElementById('estado');
-      const estadoText = document.getElementById('estado-text');
-
-      function actualizarEstado() {
-        if (estado.checked) {
-          estadoText.textContent = 'Activo';
-          estadoText.style.color = '#48c78e'; // verde
-        } else {
-          estadoText.textContent = 'Inactivo';
-          estadoText.style.color = '#f14668'; // rojo
-        }
+    campos.forEach(({ id, error, valid }) => {
+      const input = document.getElementById(id);
+      const msg = document.getElementById(error);
+      const value = input.value.trim();
+      if (!value || (valid && !valid(value))) {
+        msg.classList.remove('d-none');
+        valido = false;
+      } else {
+        msg.classList.add('d-none');
       }
+    });
+    return valido;
+  }
 
+  document.addEventListener('DOMContentLoaded', () => {
+    const estado = document.getElementById('estado');
+    const estadoText = document.getElementById('estado-text');
+    if (estado) {
+      function actualizarEstado() {
+        estadoText.textContent = estado.checked ? 'Activo' : 'Inactivo';
+        estadoText.style.color = estado.checked ? '#198754' : '#f14668';
+      }
       estado.addEventListener('change', actualizarEstado);
       actualizarEstado();
-    });
-  </script>
-
+    }
+  });
+</script>
 {% endblock %}
-

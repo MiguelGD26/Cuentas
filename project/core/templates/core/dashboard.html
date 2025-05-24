@@ -1,30 +1,188 @@
 {% extends 'core/plantilla/app.html' %}
 {% load static %}
+{% block title %}Dashboard Profesional - Sistema de Cuentas por Pagar{% endblock %}
+
 {% block content %}
-<div class="app-content">
-    <!--begin::Container-->
-    <div class="container-fluid">
-        <!--begin::Row-->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h3 class="card-title">Dashboard</h3>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        
-                    </div>
-                    <!-- /.card-body -->
-                    <div class="card-footer clearfix">
-                    </div>
-                </div>
-                <!-- /.card -->
-            </div>
-            <!-- /.col -->
+<div class="container-fluid py-4">
+  <h1 class="fw-bold mb-4">Dashboard</h1>
+  <div class="row g-4">
+
+    <!-- Card Proveedores -->
+    <div class="col-md-6 col-lg-3">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <div class="text-info mb-3">
+            <i class="fas fa-users fa-3x"></i>
+          </div>
+          <h5 class="card-title fw-semibold">Proveedores</h5>
+          <p class="display-6 text-info">{{ total_proveedores }}</p>
+          <a href="{% url 'listar_proveedores' %}" class="btn btn-info rounded-pill w-100">Ver Proveedores</a>
         </div>
-        <!--end::Row-->
+      </div>
     </div>
-    <!--end::Container-->
+
+    <!-- Card Cuentas -->
+    <div class="col-md-6 col-lg-3">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <div class="text-danger mb-3">
+            <i class="fas fa-file-invoice-dollar fa-3x"></i>
+          </div>
+          <h5 class="card-title fw-semibold">Cuentas por Pagar</h5>
+          <p class="display-6 text-danger">{{ total_cuentas }}</p>
+          <a href="{% url 'listar_cuentas' %}" class="btn btn-danger rounded-pill w-100">Ver Cuentas</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico cuentas -->
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title fw-semibold mb-4">Resumen de Cuentas (7 días)</h5>
+          <canvas id="chartVencimientos" style="max-height: 320px;"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FullCalendar -->
+  <div class="card mt-5 shadow-sm">
+    <div class="card-header">
+     <h5 class="card-title fw-bold mb-4">Calendario Mensual</h5>
+    </div>
+
+    <div class="card-body">
+      <div id="calendar"></div>
+    </div>
+  </div>
+
+  <!-- Tabla detallada cuentas por vencer -->
+  <div class="card mt-5 shadow-sm">
+    
+    <div class="card-header">
+     <h5 class="card-title fw-bold mb-4">Detalle de Cuentas por Vencer (próximos 7 días)</h5>
+    </div>
+
+    <div class="card-body">
+      {% if cuentas_por_vencer %}
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Proveedor</th>
+              <th>Número Documento</th>
+              <th>Fecha Vencimiento</th>
+              <th class="text-end">Saldo Pendiente</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cuenta in cuentas_por_vencer %}
+            <tr>
+              <td>{{ cuenta.proveedor.nombre }}</td>
+              <td>{{ cuenta.nro_documento }}</td>
+              <td>{{ cuenta.fecha_vencimiento|date:"d M Y" }}</td>
+              <td class="text-end fw-semibold">{{ cuenta.saldo_pendiente|floatformat:2 }}</td>
+              <td>
+                {% if cuenta.saldo_pendiente > 0 %}
+                  <span class="badge bg-warning text-dark">Por Vencer</span>
+                {% else %}
+                  <span class="badge bg-success">Pagada</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted">No hay cuentas por vencer en los próximos días.</p>
+      {% endif %}
+    </div>
+  </div>
 </div>
+
+<!-- Chart.js desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const ctx = document.getElementById('chartVencimientos');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {{ fechas_json }},
+        datasets: [
+          {
+            label: 'Por Vencer',
+            data: {{ por_vencer_json }},
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            borderWidth: 1,
+            borderRadius: 5,
+            maxBarThickness: 30
+          },
+          {
+            label: 'Vencidas',
+            data: {{ vencidas_json }},
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+            borderRadius: 5,
+            maxBarThickness: 30
+          },
+          {
+            label: 'Canceladas',
+            data: {{ canceladas_json }},
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            borderRadius: 5,
+            maxBarThickness: 30
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+  }
+
+  // FullCalendar
+  const calendarEl = document.getElementById('calendar');
+  if (calendarEl) {
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'es',
+      headerToolbar: {
+        left: 'prev',
+        center: 'title',
+        right: 'next'
+      },
+      buttonText: {
+        prev: '<',
+        next: '>'
+      },
+      height: 'auto',
+      fixedWeekCount: false,
+      showNonCurrentDates: false,
+      events: {{ eventos_json|safe }}
+    });
+    calendar.render();
+  }
+});
+</script>
 {% endblock %}

@@ -2,79 +2,87 @@
 {% load static %}
 {% load form_filters %}
 {% block title %}{% if es_edicion %}Editar{% else %}Registrar{% endif %} Pago{% endblock %}
-
 {% block content %}
-<div class="form-container">
-  <div class="form-header">
-    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921822.png" alt="Icono pago">
-    <h2>{% if es_edicion %}Editar{% else %}Registrar{% endif %} Pago</h2>
-  </div>
-
-
-  <form method="POST" onsubmit="return validarFormularioPago();">
-    {% csrf_token %}
-
-  <!-- Cuenta -->
-  <div class="mb-4">
-    {% if form.cuenta.errors %}
-      <p class="help is-danger">{{ form.cuenta.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-      <i class="fas fa-file-invoice-dollar"></i>
-      {{ form.cuenta|add_class:"form-control" }}
+<div class="container my-4" style="max-width: 900px;">
+  <div class="card shadow">
+    <div class="card-header {% if es_edicion %}bg-primary{% else %}bg-success{% endif %} text-white">
+      <h4 class="mb-0 text-center text-md-start">{% if es_edicion %}Editar{% else %}Registrar{% endif %} Pago</h4>
     </div>
-  </div>
+    <div class="card-body">
+      <div class="row g-4 align-items-center">
+        <!-- Imagen / Icono -->
+        <div class="col-12 col-md-4 text-center">
+          <img src="{% static 'img/pago.gif' %}" alt="Icono pago" class="img-fluid" style="max-height: 180px;">
+        </div>
 
+        <!-- Formulario -->
+        <div class="col-12 col-md-8">
+          <form method="POST" onsubmit="return validarFormularioPago();">
+            {% csrf_token %}
 
+            <!-- Cuenta -->
+            <div class="mb-3">
+              {% if form.cuenta.errors %}
+                <p class="text-danger small">{{ form.cuenta.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-file-invoice-dollar text-danger"></i></span>
+                {{ form.cuenta|add_class:"form-select" }}
+              </div>
+            </div>
 
+            <!-- Fecha de pago -->
+            <div class="mb-3">
+              {% if form.fecha_pago.errors %}
+                <p class="text-danger small">{{ form.fecha_pago.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calendar-check text-danger"></i></span>
+                {{ form.fecha_pago|add_class:"form-control" }}
+              </div>
+              <p id="fecha_pago-error" class="text-danger small d-none">La fecha de pago es obligatoria.</p>
+            </div>
 
-    <!-- Fecha de pago -->
-    <div class="mb-4">
-      {% if form.fecha_pago.errors %}
-          <p class="help is-danger">{{ form.fecha_pago.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-          <i class="fas fa-calendar-check"></i>
-          {{ form.fecha_pago }}
-          <p id="fecha_pago-error" class="help is-danger is-hidden">La fecha de pago es obligatoria.</p>
+            <!-- Monto pagado -->
+            <div class="mb-3">
+              {% if form.monto_pagado.errors %}
+                <p class="text-danger small">{{ form.monto_pagado.errors.0 }}</p>
+              {% endif %}
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-money-check-alt text-danger"></i></span>
+                {{ form.monto_pagado|add_class:"form-control" }}
+              </div>
+              <p id="monto-error" class="text-danger small d-none">El monto debe ser mayor a 0 y no exceder el saldo pendiente.</p>
+            </div>
+
+            <!-- Información dinámica -->
+            <div id="info-cuenta" class="alert alert-info d-none">
+              <p><strong>Proveedor:</strong> <span id="proveedor-nombre"></span></p>
+              <p><strong>Documento:</strong> <span id="nro-documento"></span></p>
+              <p><strong>Monto Total:</strong> S/ <span id="monto-total"></span></p>
+              <p><strong>Abonado:</strong> S/ <span id="monto-abonado"></span></p>
+              <p><strong>Saldo pendiente:</strong> <strong>S/ <span id="saldo-pendiente">0.00</span></strong></p>
+            </div>
+
+            <!-- Botón pagar total -->
+            <button type="button" class="btn btn-outline-success mb-3 d-none" id="btn-pagar-total" onclick="pagarTotal()">
+              Pagar Total
+            </button>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+              <button type="submit" class="btn btn-success" id="btn-guardar">
+                <i class="fas fa-save me-2"></i>{% if es_edicion %}Actualizar{% else %}Registrar{% endif %}
+              </button>
+              <a href="{% url 'detalle_cuenta' cuenta.pk %}" class="btn btn-danger">
+                <i class="fas fa-ban me-2"></i> Cancelar
+              </a>
+            </div>
+
+          </form>
+        </div>
       </div>
     </div>
-
-
-    <!-- Monto pagado -->
-    <div class="mb-4">
-      <div class="input-div">
-        <i class="fas fa-money-check-alt"></i>
-        {{ form.monto_pagado }}
-      </div>
-      <p id="monto-error" class="help is-danger is-hidden">El monto debe ser mayor a 0 y no exceder el saldo pendiente.</p>
-    </div>
-
-    <!-- Información dinámica -->
-    <div id="info-cuenta" class="alert alert-info d-none">
-      <p><strong>Proveedor:</strong> <span id="proveedor-nombre"></span></p>
-      <p><strong>Documento:</strong> <span id="nro-documento"></span></p>
-      <p><strong>Monto Total:</strong> S/ <span id="monto-total"></span></p>
-      <p><strong>Abonado:</strong> S/ <span id="monto-abonado"></span></p>
-      <p><strong>Saldo pendiente:</strong> <strong>S/ <span id="saldo-pendiente">0.00</span></strong></p>
-    </div>
-
-    <!-- Botón pagar total -->
-    <button type="button" class="btn btn-outline-success mb-3 d-none" id="btn-pagar-total" onclick="pagarTotal()">
-      Pagar Total
-    </button>
-
-    <div class="d-flex justify-content-center gap-3 mt-4">
-      <button type="submit" class="btn btn-success" id="btn-guardar">
-        <i class="fas fa-save me-2"></i> Guardar Pago
-      </button>
-      <a href="{% url 'detalle_cuenta' cuenta.pk %}" class="btn btn-danger">
-        <i class="fas fa-ban me-2"></i> Cancelar
-      </a>
-
-    </div>
-
-  </form>
+  </div>
 </div>
 
 <!-- Datos JSON -->
@@ -93,6 +101,7 @@
 </script>
 
 <!-- Scripts -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
   const btnGuardar = document.getElementById("btn-guardar");
   const cuentasInfo = JSON.parse(document.getElementById("datos-cuentas").textContent);
@@ -102,9 +111,7 @@
   const infoDiv = document.getElementById("info-cuenta");
   const btnPagarTotal = document.getElementById("btn-pagar-total");
   const errorMonto = document.getElementById("monto-error");
-  const fecha_pago = document.getElementById("fecha_pago-error");
-  
-    
+  const fechaPagoError = document.getElementById("fecha_pago-error");
 
   function actualizarSaldo() {
     const cuentaId = cuentaSelect.value;
@@ -139,29 +146,26 @@
     const valor = parseFloat(montoInput.value);
 
     if (!datos || isNaN(valor) || valor <= 0 || valor > datos.saldo) {
-    errorMonto.classList.remove('is-hidden');
-    btnGuardar.disabled = true;
-    return false;
-  } else {
-    errorMonto.classList.add('is-hidden');
-    btnGuardar.disabled = false;
-    return true;
-  }
-  }
-  function validarFecha() {
-    const fechaInput = document.getElementById("id_fecha_pago");
-    const errorFecha = document.getElementById("fecha_pago-error");
-
-    if (!fechaInput.value) {
-      errorFecha.classList.remove("is-hidden");
-
+      errorMonto.classList.remove('d-none');
+      btnGuardar.disabled = true;
       return false;
     } else {
-      errorFecha.classList.add("is-hidden");
+      errorMonto.classList.add('d-none');
+      btnGuardar.disabled = false;
       return true;
     }
   }
 
+  function validarFecha() {
+    const fechaInput = document.getElementById("id_fecha_pago");
+    if (!fechaInput.value) {
+      fechaPagoError.classList.remove("d-none");
+      return false;
+    } else {
+      fechaPagoError.classList.add("d-none");
+      return true;
+    }
+  }
 
   function validarFormularioPago() {
     const esMontoValido = validarMonto();
@@ -169,23 +173,15 @@
     return esMontoValido && esFechaValida;
   }
 
-
-  // Eventos
   cuentaSelect.addEventListener("change", actualizarSaldo);
   montoInput.addEventListener("input", validarMonto);
 
-  // Inicializar
-  actualizarSaldo();
-
-  // Flatpickr
   document.addEventListener('DOMContentLoaded', function () {
+    actualizarSaldo();
     flatpickr("input[name='fecha_pago']", {
       dateFormat: "Y-m-d",
       locale: "es"
-
-      
     });
   });
-  
 </script>
 {% endblock %}

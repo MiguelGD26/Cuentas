@@ -5,7 +5,7 @@
 <div class="container mt-4">
     <h2>Cuentas por Pagar</h2>
     <a href="{% url 'crear_cuenta' %}" class="btn btn-success mb-3">
-        <i class="bi bi-wallet2"></i> Nueva cuenta
+        <i class="fas fa-wallet"></i> Nueva cuenta
     </a>
 
     {% if cuentas_por_vencer %}
@@ -23,18 +23,20 @@
     </div>
     {% endif %}
 
-    <form method="get" class="row g-3 mb-4">
+    <form method="get" class="row g-3 mb-4 align-items-end">
         <div class="col-md-3">
-            <div class="input-div">
-                <i class="fas fa-user"></i>
-                <input type="text" name="q" class="form-control" placeholder="Proveedor o documento..." value="{{ query }}">
+            <label class="form-label visually-hidden" for="q">Proveedor o documento</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user text-danger"></i></span>
+                <input type="text" id="q" name="q" class="form-control" placeholder="Proveedor o documento..." value="{{ query }}">
             </div>
         </div>
 
         <div class="col-md-2">
-            <div class="input-div">
-                <i class="fas fa-toggle-on"></i>
-                <select name="estado" class="form-select">
+            <label class="form-label visually-hidden" for="estado">Estado</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-toggle-on text-danger"></i></span>
+                <select id="estado" name="estado" class="form-select">
                     <option value=""> Estado </option>
                     <option value="1" {% if estado == '1' %}selected{% endif %}>Activa</option>
                     <option value="2" {% if estado == '2' %}selected{% endif %}>Cancelada</option>
@@ -42,82 +44,88 @@
                 </select>
             </div>
         </div>
+
         <div class="col-md-2">
-            <div class="input-div">
-                <i class="fas fa-calendar-alt"></i>
+            <label class="form-label visually-hidden" for="desde">Desde</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calendar-alt text-danger"></i></span>
                 <input type="text" id="desde" name="desde" class="form-control" placeholder="Desde..." value="{{ desde|default_if_none:'' }}">
             </div>
         </div>
+
         <div class="col-md-2">
-            <div class="input-div">
-                <i class="fas fa-calendar-check"></i>
+            <label class="form-label visually-hidden" for="hasta">Hasta</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calendar-check text-danger"></i></span>
                 <input type="text" id="hasta" name="hasta" class="form-control" placeholder="Hasta..." value="{{ hasta|default_if_none:'' }}">
             </div>
         </div>
+
         <div class="col-md-1 d-grid">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-magnifying-glass"></i>
+                <i class="fas fa-search"></i> 
             </button>
         </div>
         <div class="col-md-1 d-grid">
-            <a href="{% url 'listar_cuentas' %}" class="btn btn-secondary d-flex justify-content-center align-items-center">
-                <i class="fas fa-eraser"></i>
+            <a href="{% url 'listar_cuentas' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-eraser"></i> 
             </a>
         </div>
     </form>
 
     {% if cuentas %}
     <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Proveedor</th>
-                <th>Tipo Documento</th>
-                <th>Nro Documento</th>
-                <th>F. Emisión</th>
-                <th>F. Vencimiento</th>
-                <th>Saldo Pendiente</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cuenta in cuentas %}
-            <tr>
-                <td>{{ cuenta.proveedor.nombre }}</td>
-                <td>{{ cuenta.tipo_documento.nombre }}</td>
-                <td>{{ cuenta.nro_documento }}</td>
-                <td>{{ cuenta.fecha_emision }}</td>
-                <td>{{ cuenta.fecha_vencimiento }}</td>
-                <td>S/ {{ cuenta.saldo_pendiente }}</td>
-                <td>
-                    {% if cuenta.estado == 1 %}
-                        <span class="badge bg-success">Activa</span>
-                    {% elif cuenta.estado == 2 %}
-                        <span class="badge bg-secondary">Cancelada</span>
-                    {% elif cuenta.estado == 3 %}
-                        <span class="badge bg-danger">Vencida</span>
-                    {% else %}
-                        <span class="badge bg-dark">Desconocido</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'editar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-warning">
-                        <i class="fas fa-pen-to-square" title="Editar Cuenta"></i>
-                    </a>
-                    <a href="{% url 'eliminar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-danger" title="Eliminar cuenta"
-                       onclick="return confirm('¿Estás seguro de eliminar esta cuenta?')">
-                        <i class="fas fa-trash"></i>
-                    </a>
-                    <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-primary" title="Ver Detalles">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+        <table class="table align-middle table-hover">
+            <thead>
+                <tr>
+                    <th>Proveedor</th>
+                    <th>Tipo Documento</th>
+                    <th>Nro Documento</th>
+                    <th>F. Emisión</th>
+                    <th>F. Vencimiento</th>
+                    <th>Saldo Pendiente</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cuenta in cuentas %}
+                <tr>
+                    <td>{{ cuenta.proveedor.nombre }}</td>
+                    <td>{{ cuenta.tipo_documento.nombre }}</td>
+                    <td>{{ cuenta.nro_documento }}</td>
+                    <td>{{ cuenta.fecha_emision }}</td>
+                    <td>{{ cuenta.fecha_vencimiento }}</td>
+                    <td>S/ {{ cuenta.saldo_pendiente }}</td>
+                    <td>
+                        {% if cuenta.estado == 1 %}
+                            <span class="badge bg-success">Activa</span>
+                        {% elif cuenta.estado == 2 %}
+                            <span class="badge bg-primary">Cancelada</span>
+                        {% elif cuenta.estado == 3 %}
+                            <span class="badge bg-danger">Vencida</span>
+                        {% else %}
+                            <span class="badge bg-dark">Desconocido</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'editar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-warning" title="Editar Cuenta">
+                            <i class="fas fa-pen-to-square"></i>
+                        </a>
+                        <a href="{% url 'eliminar_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-danger" title="Eliminar cuenta"
+                            onclick="return confirm('¿Estás seguro de eliminar esta cuenta?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-sm btn-primary" title="Ver Detalles">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     {% if cuentas.has_other_pages %}
     <nav>
         <ul class="pagination">
@@ -155,8 +163,8 @@
 
     flatpickr("#hasta", {
         dateFormat: "Y-m-d",
-        locale: "es" ,
+        locale: "es",
         allowInput: true
     });
 </script>
-{% endblock %}
+{% endblock %}

@@ -2,219 +2,200 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-6">
-    <h2 class="title is-3 has-text-primary mb-5">Detalle de Cuenta</h2>
+<section class="my-4">
+  <div class="container">
+    <h2 class="h3 text-primary mb-4">Detalle de Cuenta</h2>
 
-    <div class="card mb-6">
-        <div class="card-content">
-            <div class="columns is-multiline">
-                <div class="column is-half">
-                    <p class="mb-3">
-                        <span class="icon has-text-info"><i class="fas fa-truck"></i></span>
-                        <strong>Proveedor:</strong> {{ cuenta.proveedor.nombre }}
-                    </p>
-                    <p class="mb-3">
-                        <span class="icon has-text-info"><i class="fas fa-file-invoice"></i></span>
-                        <strong>Tipo de Documento:</strong> {{ cuenta.tipo_documento.nombre }}
-                    </p>
-                    <p class="mb-3">
-                        <span class="icon has-text-info"><i class="fas fa-hashtag"></i></span>
-                        <strong>Número de Documento:</strong> {{ cuenta.nro_documento }}
-                    </p>
-                </div>
-                <div class="column is-half">
-                    <p class="mb-3">
-                        <span class="icon has-text-info"><i class="fas fa-calendar-alt"></i></span>
-                        <strong>Fecha de Emisión:</strong> {{ cuenta.fecha_emision }}
-                    </p>
-                    <p class="mb-3">
-                        <span class="icon has-text-info"><i class="fas fa-calendar-check"></i></span>
-                        <strong>Fecha de Vencimiento:</strong> {{ cuenta.fecha_vencimiento }}
-                    </p>
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="columns is-multiline has-text-centered">
-                <div class="column is-one-third">
-                    <p class="is-size-5 has-text-success mb-1">
-                        <span class="icon"><i class="fas fa-money-bill-wave"></i></span>
-                        <strong>Monto Total</strong>
-                    </p>
-                    <p class="is-size-4">S/ {{ cuenta.monto_total }}</p>
-                </div>
-                <div class="column is-one-third">
-                    <p class="is-size-5 has-text-warning mb-1">
-                        <span class="icon"><i class="fas fa-hand-holding-dollar"></i></span>
-                        <strong>Monto Abonado</strong>
-                    </p>
-                    <p class="is-size-4">S/ {{ cuenta.monto_abonado }}</p>
-                </div>
-                <div class="column is-one-third">
-                    <p class="is-size-5 has-text-danger mb-1">
-                        <span class="icon"><i class="fas fa-wallet"></i></span>
-                        <strong>Saldo Pendiente</strong>
-                    </p>
-                    <p class="is-size-4">S/ {{ cuenta.saldo_pendiente }}</p>
-                </div>
-            </div>
-
-            <div class="mt-5">
-                <p class="is-size-5">
-                    <span class="icon"><i class="fas fa-info-circle"></i></span>
-                    <strong>Estado:</strong>
-                    {% if cuenta.estado == 1 %}
-                        <span class="tag is-success is-medium ml-2">Activa</span>
-                    {% elif cuenta.estado == 2 %}
-                        <span class="tag is-light is-medium ml-2">Cancelada</span>
-                    {% elif cuenta.estado == 3 %}
-                        <span class="tag is-danger is-medium ml-2">Vencida</span>
-                    {% else %}
-                        <span class="tag is-dark is-medium ml-2">Desconocido</span>
-                    {% endif %}
-                </p>
-            </div>
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <i class="fas fa-truck text-info me-2"></i><strong>Proveedor:</strong> {{ cuenta.proveedor.nombre }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <i class="fas fa-calendar-alt text-info me-2"></i><strong>Fecha de Emisión:</strong> {{ cuenta.fecha_emision }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <i class="fas fa-file-invoice text-info me-2"></i><strong>Tipo de Documento:</strong> {{ cuenta.tipo_documento.nombre }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <i class="fas fa-calendar-check text-info me-2"></i><strong>Fecha de Vencimiento:</strong> {{ cuenta.fecha_vencimiento }}
+          </div>
+          <div class="col-md-6 mb-3">
+            <i class="fas fa-hashtag text-info me-2"></i><strong>Número de Documento:</strong> {{ cuenta.nro_documento }}
+          </div>
         </div>
+
+        <hr>
+
+        <div class="row text-center">
+          <div class="col-md-4 mb-3">
+            <p class="text-success fw-semibold mb-1"><i class="fas fa-money-bill-wave"></i> Monto Total</p>
+            <p class="h5">S/ {{ cuenta.monto_total }}</p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <p class="text-warning fw-semibold mb-1"><i class="fas fa-hand-holding-dollar"></i> Monto Abonado</p>
+            <p class="h5">S/ {{ cuenta.monto_abonado }}</p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <p class="text-danger fw-semibold mb-1"><i class="fas fa-wallet"></i> Saldo Pendiente</p>
+            <p class="h5">S/ {{ cuenta.saldo_pendiente }}</p>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <p class="fw-semibold">
+            <i class="fas fa-info-circle"></i> Estado:
+            {% if cuenta.estado == 1 %}
+              <span class="badge bg-success ms-2">Activa</span>
+            {% elif cuenta.estado == 2 %}
+              <span class="badge bg-secondary ms-2">Cancelada</span>
+            {% elif cuenta.estado == 3 %}
+              <span class="badge bg-danger ms-2">Vencida</span>
+            {% else %}
+              <span class="badge bg-dark ms-2">Desconocido</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
     </div>
 
-    <!-- Historial de Pagos -->
-    <h3 class="title is-4 has-text-link mb-4">Historial de Pagos</h3>
+    <h4 class="h4 text-primary mb-3">Detalles de Pagos</h4>
 
-    <!-- Mostrar monto abonado inicial -->
-    <div class="notification is-info is-light">
-        <span class="icon"><i class="fas fa-coins"></i></span>
-        <strong>Monto Abonado Inicial:</strong> S/ {{ cuenta.monto_abonado_inicial }}
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+      <i class="fas fa-coins me-2"></i>
+      <strong>Monto Abonado Inicial:</strong> S/ {{ cuenta.monto_abonado_inicial }}
     </div>
 
-    <!-- Botón registrar pago -->
-    <div class="mb-4">
-        <a href="{% url 'crear_pago_para_cuenta' cuenta.cuenta_id %}" class="button is-success" style="background-color:rgb(23, 159, 23); color: white; text-decoration: none;">
-            <span class="icon"><i class="fas fa-money-bill-wave"></i></span>
-            <span>Registrar Pago</span>
-        </a>
+    <div class="mb-3">
+      <a href="{% url 'crear_pago_para_cuenta' cuenta.cuenta_id %}" class="btn btn-success">
+        <i class="fas fa-money-bill-wave me-1"></i> Registrar Pago
+      </a>
     </div>
 
-    <!-- Mensajes flash en historial de pagos -->
     {% if messages %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {% for message in messages %}
+      {% for message in messages %}
         {{ message }}
-        {% endfor %}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      {% endfor %}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endif %}
+
     <!-- Filtro por fecha -->
-    <form method="get" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <input type="date" name="desde" class="form-control" value="{{ desde }}" placeholder="Desde">
-        </div>
-        <div class="col-md-4">
-            <input type="date" name="hasta" class="form-control" value="{{ hasta }}" placeholder="Hasta">
-        </div>
-        <div class="col-md-1 d-grid">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Filtrar
-            </button>
-        </div>
-        <div class="col-md-1 d-grid">
-            <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-secondary d-flex justify-content-center align-items-center" title="Limpiar filtros">
-                <i class="fas fa-eraser"></i>
-            </a>
-        </div>
-    </form>
+    <form method="get" class="row g-2 mb-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Desde</label>
+      <div class="input-div d-flex align-items-center gap-2">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="text" name="desde" class="form-control" value="{{ desde }}" placeholder="Desde">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Hasta</label>
+      <div class="input-div d-flex align-items-center gap-2">
+        <i class="fas fa-calendar-check"></i>
+        <input type="text" name="hasta" class="form-control" value="{{ hasta }}" placeholder="Hasta">
+      </div>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-search me-1"></i> Filtrar
+      </button>
+    </div>
+    <div class="col-md-2 d-grid">
+      <a href="{% url 'detalle_cuenta' cuenta.cuenta_id %}" class="btn btn-light" title="Limpiar filtros">
+        <i class="fas fa-eraser"></i>
+      </a>
+    </div>
+  </form>
+
 
     <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Monto</th>
-                <th>Opciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pago in pagos %}
-            <tr>
-                <td>{{ pago.fecha_pago }}</td>
-                <td>S/ {{ pago.monto_pagado }}</td>
-                <td>
-                    <a href="{% url 'eliminar_pago' pago.pago_id %}" class="btn btn-sm btn-danger"
-                    onclick="return confirm('¿Estás seguro de eliminar este pago?')">
-                    <i class="bi bi-trash-fill text-white"></i>
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3">No hay pagos registrados para esta cuenta.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Monto</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pago in pagos %}
+        <tr>
+          <td>{{ pago.fecha_pago }}</td>
+          <td>S/ {{ pago.monto_pagado }}</td>
+          <td>
+            <a href="{% url 'eliminar_pago' pago.pago_id %}" class="btn btn-sm btn-danger"
+               onclick="return confirm('¿Estás seguro de eliminar este pago?')">
+              <i class="fas fa-trash-alt"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3">No hay pagos registrados para esta cuenta.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
 
     {% if pagos.has_other_pages %}
-    <nav>
-        <ul class="pagination">
-            {% if pagos.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ pagos.previous_page_number }}&desde={{ desde }}&hasta={{ hasta }}">Anterior</a>
-            </li>
-            {% endif %}
-            {% for num in pagos.paginator.page_range %}
-            <li class="page-item {% if pagos.number == num %}active{% endif %}">
-                <a class="page-link" href="?page={{ num }}&desde={{ desde }}&hasta={{ hasta }}">{{ num }}</a>
-            </li>
-            {% endfor %}
-            {% if pagos.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ pagos.next_page_number }}&desde={{ desde }}&hasta={{ hasta }}">Siguiente</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-
-
-
-    {% if pagos.has_other_pages %}
-    <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
         {% if pagos.has_previous %}
-        <a class="pagination-previous" href="?page={{ pagos.previous_page_number }}{% if desde %}&desde={{ desde }}{% endif %}{% if hasta %}&hasta={{ hasta }}{% endif %}">Anterior</a>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagos.previous_page_number }}{% if desde %}&desde={{ desde }}{% endif %}{% if hasta %}&hasta={{ hasta }}{% endif %}">Anterior</a>
+        </li>
         {% else %}
-        <a class="pagination-previous" disabled>Anterior</a>
+        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
         {% endif %}
+
+        {% for num in pagos.paginator.page_range %}
+        <li class="page-item {% if pagos.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}{% if desde %}&desde={{ desde }}{% endif %}{% if hasta %}&hasta={{ hasta }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endfor %}
 
         {% if pagos.has_next %}
-        <a class="pagination-next" href="?page={{ pagos.next_page_number }}{% if desde %}&desde={{ desde }}{% endif %}{% if hasta %}&hasta={{ hasta }}{% endif %}">Siguiente</a>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagos.next_page_number }}{% if desde %}&desde={{ desde }}{% endif %}{% if hasta %}&hasta={{ hasta }}{% endif %}">Siguiente</a>
+        </li>
         {% else %}
-        <a class="pagination-next" disabled>Siguiente</a>
+        <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
         {% endif %}
-
-        <ul class="pagination-list">
-            {% for num in pagos.paginator.page_range %}
-            <li>
-                <a class="pagination-link {% if pagos.number == num %}is-current{% endif %}" href="?page={{ num }}{% if desde %}&desde={{ desde }}{% endif %}{% if hasta %}&hasta={{ hasta }}{% endif %}">
-                    {{ num }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
+      </ul>
     </nav>
     {% endif %}
 
-    <a href="{% url 'listar_cuentas' %}" class="button is-link mt-6">
-        <span class="icon"><i class="fas fa-arrow-left"></i></span>
-        <span>Volver al listado</span>
+    <a href="{% url 'listar_cuentas' %}" class="btn btn-outline-primary mt-4">
+      <i class="fas fa-arrow-left me-1"></i> Volver al listado
     </a>
-</div>
+  </div>
+</section>
 {% endblock %}
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const closeButtons = document.querySelectorAll('.alert-dismissible .btn-close');
-    closeButtons.forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        this.parentElement.style.display = 'none';
+  // Cierre de alertas con Bootstrap
+  document.addEventListener('DOMContentLoaded', function () {
+    const closeButtons = document.querySelectorAll('.btn-close');
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.closest('.alert').remove();
       });
+    });
+  });
+</script>
+
+<!-- Flatpickr para campos de fecha -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    flatpickr("input[name='desde']", {
+      dateFormat: "Y-m-d",
+      locale: "es"
+    });
+    flatpickr("input[name='hasta']", {
+      dateFormat: "Y-m-d",
+      locale: "es"
     });
   });
 </script>

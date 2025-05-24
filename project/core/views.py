@@ -1,18 +1,100 @@
+import calendar
+import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from datetime import date, timedelta, datetime
+from datetime import date,  timedelta, datetime
 from django.core.paginator import Paginator
-from django.db.models import Q
-import uuid
-
+from django.db.models import Q, Count
+from django.utils.timezone import now, timedelta
 from .models import Proveedor, CuentaPorPagar, TipoDocumento, Pago
 from .forms import ProveedorForm, CuentaPorPagarForm, PagoForm
+from django.utils.safestring import mark_safe
+from collections import defaultdict
 
 def dashboard(request):
-    return render(request, 'core/dashboard.html')
+    total_proveedores = Proveedor.objects.count()
+    total_cuentas = CuentaPorPagar.objects.count()
+
+    hoy = now().date()
+
+    # Rango para resumen semanal (7 días: 2 antes y 4 después)
+    inicio = hoy - timedelta(days=2)
+    fin = hoy + timedelta(days=4)
+
+    # Cuentas por vencer en los próximos 7 días (desde hoy)
+    cuentas_por_vencer = CuentaPorPagar.objects.filter(
+        fecha_vencimiento__gte=hoy,
+        fecha_vencimiento__lte=hoy + timedelta(days=7),
+        saldo_pendiente__gt=0
+    ).select_related('proveedor').order_by('fecha_vencimiento')
+
+    fechas = []
+    por_vencer_lista = []
+    vencidas_lista = []
+    canceladas_lista = []
+
+    for i in range(7):
+        dia = inicio + timedelta(days=i)
+        cuentas_dia = CuentaPorPagar.objects.filter(fecha_vencimiento=dia)
+
+        por_vencer = cuentas_dia.filter(saldo_pendiente__gt=0, fecha_vencimiento__gte=hoy).count()
+        vencidas = cuentas_dia.filter(saldo_pendiente__gt=0, fecha_vencimiento__lt=hoy).count()
+        canceladas = cuentas_dia.filter(saldo_pendiente=0).count()
+
+        fechas.append(dia.strftime("%d %b"))
+        por_vencer_lista.append(por_vencer)
+        vencidas_lista.append(vencidas)
+        canceladas_lista.append(canceladas)
+
+    # Calendario mensual completo para pintar días con cuentas por vencer en rojo
+    año = hoy.year
+    mes = hoy.month
+
+    cuentas_mes = CuentaPorPagar.objects.filter(
+        fecha_vencimiento__year=año,
+        fecha_vencimiento__month=mes,
+        saldo_pendiente__gt=0
+    ).select_related('proveedor')
+
+    cuentas_por_dia = defaultdict(list)
+    for cuenta in cuentas_mes:
+        cuentas_por_dia[cuenta.fecha_vencimiento.day].append(cuenta)
+
+    # Construimos lista de eventos para FullCalendar
+    eventos = []
+    for cuenta in cuentas_mes:
+        eventos.append({
+            'title': f"{cuenta.proveedor.nombre} - S/{cuenta.saldo_pendiente:.2f}",
+            'start': cuenta.fecha_vencimiento.strftime('%Y-%m-%d'),
+            'id': str(cuenta.pk),  # Pasamos id para identificar luego el evento
+            'extendedProps': {  # datos extra para el modal
+                'proveedor': cuenta.proveedor.nombre,
+                'nro_documento': cuenta.nro_documento,
+                'saldo_pendiente': float(cuenta.saldo_pendiente),
+                'estado': 'Por Vencer' if cuenta.saldo_pendiente > 0 else 'Pagada'
+            },
+            'color': '#d32f2f'  # rojo para por vencer
+        })
+
+    contexto = {
+        'total_proveedores': total_proveedores,
+        'total_cuentas': total_cuentas,
+        'cuentas_por_vencer': cuentas_por_vencer,
+        'fechas_json': mark_safe(json.dumps(fechas)),
+        'por_vencer_json': mark_safe(json.dumps(por_vencer_lista)),
+        'vencidas_json': mark_safe(json.dumps(vencidas_lista)),
+        'canceladas_json': mark_safe(json.dumps(canceladas_lista)),
+        'calendario_cuentas': dict(cuentas_por_dia),
+        'año': año,
+        'mes': mes,
+        'nombre_mes': calendar.month_name[mes],
+        'eventos_json': mark_safe(json.dumps(eventos)),  # Eventos para el calendario
+    }
+
+    return render(request, 'core/dashboard.html', contexto)
 
 # Página de inicio
 def home(request):

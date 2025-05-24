@@ -1,145 +1,151 @@
 {% extends 'core/plantilla/app.html' %}
+{% load static %}
 {% load form_filters %}
 {% block title %}{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar{% endblock %}
+
 {% block content %}
-<div class="form-container">
-  <div class="form-header">
-    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921822.png" alt="Icono cuenta">
-    <h2>{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar</h2>
-  </div>
-
-  <form method="POST" onsubmit="return validarFormulario();">
-    {% csrf_token %}
-
-    <!-- Proveedor -->
-    <div class="mb-4">
-    {% if form.proveedor.errors %}
-        <p class="help is-danger">{{ form.proveedor.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        <i class="fas fa-user-tie"></i>
-        {% if es_edicion %}
-        <select disabled class="input" id="proveedor-disabled">
-            {% for proveedor in form.proveedor.field.queryset %}
-            <option value="{{ proveedor.pk }}" {% if proveedor.pk == form.proveedor.value %}selected{% endif %}>
-                {{ proveedor }}
-            </option>
-            {% endfor %}
-        </select>
-        <input type="hidden" name="proveedor" value="{{ form.proveedor.value }}">
-        {% else %}
-        {{ form.proveedor }}
-        {% endif %}
+<div class="container my-4" style="max-width: 900px;">
+  <div class="card shadow">
+    <div class="card-header {% if es_edicion %}bg-primary{% else %}bg-success{% endif %} text-white">
+      <h4 class="mb-0">{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar</h4>
     </div>
-    <p id="proveedor-error" class="help is-danger is-hidden">Debes seleccionar un proveedor.</p>
-    </div>
+    <div class="card-body">
+      <div class="row g-4 align-items-center">
+        <!-- Imagen -->
+        <div class="col-md-4 text-center">
+          <img src="{% static 'img/registro.gif' %}" alt="Icono cuenta" class="img-fluid" style="width: 100%; height:  100%;">
+        </div>
+
+        <!-- Formulario -->
+        <div class="col-md-8">
+          <form method="POST" onsubmit="return validarFormulario();">
+            {% csrf_token %}
+
+            <!-- Proveedor -->
+            <div class="mb-3">
+              {% if form.proveedor.errors %}
+                <div class="text-danger small">{{ form.proveedor.errors.0 }}</div>
+              {% endif %}
+              <label for="proveedor" class="form-label">Proveedor</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie text-danger"></i></span>
+                {% if es_edicion %}
+                  <select disabled class="form-select" id="proveedor-disabled">
+                    {% for proveedor in form.proveedor.field.queryset %}
+                      <option value="{{ proveedor.pk }}" {% if proveedor.pk == form.proveedor.value %}selected{% endif %}>
+                        {{ proveedor }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <input type="hidden" name="proveedor" value="{{ form.proveedor.value }}">
+                {% else %}
+                  {{ form.proveedor|add_class:"form-select" }}
+                {% endif %}
+              </div>
+              <div id="proveedor-error" class="text-danger small d-none">Debes seleccionar un proveedor.</div>
+            </div>
+
+            <!-- Tipo de documento -->
+            <div class="mb-3">
+              {% if form.tipo_documento.errors %}
+                <div class="text-danger small">{{ form.tipo_documento.errors.0 }}</div>
+              {% endif %}
+              <label for="tipo_documento" class="form-label">Tipo de Documento</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-file-alt text-danger"></i></span>
+                {% if es_edicion %}
+                  <select disabled class="form-select" id="tipo_documento-disabled">
+                    {% for val, label in form.tipo_documento.field.choices %}
+                      <option value="{{ val }}" {% if val == form.tipo_documento.value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="hidden" name="tipo_documento" value="{{ form.tipo_documento.value }}">
+                {% else %}
+                  {{ form.tipo_documento|add_class:"form-select" }}
+                {% endif %}
+              </div>
+              <div id="tipo_documento-error" class="text-danger small d-none">Selecciona un tipo de documento válido.</div>
+            </div>
+
+            <!-- Número de documento -->
+            <div class="mb-3">
+              {% if form.nro_documento.errors %}
+                <div class="text-danger small">{{ form.nro_documento.errors.0 }}</div>
+              {% endif %}
+              <label for="nro_documento" class="form-label">Número de Documento</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-hashtag text-danger"></i></span>
+                {% if es_edicion %}
+                  <input type="text" class="form-control" value="{{ form.nro_documento.value }}" disabled>
+                  <input type="hidden" name="nro_documento" value="{{ form.nro_documento.value }}">
+                {% else %}
+                  {{ form.nro_documento|add_class:"form-control" }}
+                {% endif %}
+              </div>
+              <div id="nro_documento-error" class="text-danger small d-none">El número de documento no es válido.</div>
+            </div>
+
+            <!-- Fecha de emisión -->
+            <div class="mb-4">
+              {% if form.fecha_emision.errors %}
+                  <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
+              {% endif %}
+              <div class="input-div d-flex align-items-center gap-2">
+                  <i class="fas fa-calendar-alt"></i>
+                  {{ form.fecha_emision|add_class:"form-control" }}
+              </div>
+            </div>
+
+            <!-- Fecha de vencimiento -->
+            <div class="mb-4">
+              {% if form.fecha_vencimiento.errors %}
+                  <p class="help is-danger">{{ form.fecha_vencimiento.errors.0 }}</p>
+              {% endif %}
+              <div class="input-div d-flex align-items-center gap-2">
+                  <i class="fas fa-calendar-check"></i>
+                  {{ form.fecha_vencimiento|add_class:"form-control" }}
+              </div>
+            </div>
 
 
-    <!-- Tipo de documento -->
-    <div class="mb-4">
-    {% if form.tipo_documento.errors %}
-        <p class="help is-danger">{{ form.tipo_documento.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        <i class="fas fa-file-alt"></i>
-        {% if es_edicion %}
-        <select disabled class="input" id="tipo_documento-disabled">
-            {% for val, label in form.tipo_documento.field.choices %}
-            <option value="{{ val }}" {% if val == form.tipo_documento.value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-        <input type="hidden" name="tipo_documento" value="{{ form.tipo_documento.value }}">
-        {% else %}
-        {{ form.tipo_documento }}
-        {% endif %}
-    </div>
-    <p id="tipo_documento-error" class="help is-danger is-hidden">Selecciona un tipo de documento válido.</p>
-    </div>
+            <!-- Monto total -->
+            <div class="mb-3">
+              {% if form.monto_total.errors %}
+                <div class="text-danger small">{{ form.monto_total.errors.0 }}</div>
+              {% endif %}
+              <label for="monto_total" class="form-label">Monto Total</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-money-bill-wave text-danger"></i></span>
+                {{ form.monto_total|add_class:"form-control" }}
+              </div>
+            </div>
 
+            <!-- Monto abonado inicial -->
+            <div class="mb-3">
+              {% if form.monto_abonado_inicial.errors %}
+                <div class="text-danger small">{{ form.monto_abonado_inicial.errors.0 }}</div>
+              {% endif %}
+              <label for="monto_abonado_inicial" class="form-label">Monto Abonado Inicial</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-coins text-danger"></i></span>
+                {{ form.monto_abonado_inicial|add_class:"form-control" }}
+              </div>
+            </div>
 
-    <!-- Número de documento -->
-    <div class="mb-4">
-    {% if form.nro_documento.errors %}
-        <p class="help is-danger">{{ form.nro_documento.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        <i class="fas fa-hashtag"></i>
-        {% if es_edicion %}
-        <input 
-            type="text" 
-            name="nro_documento_disabled" 
-            value="{{ form.nro_documento.value }}" 
-            class="input" 
-            disabled
-        >
-        <input 
-            type="hidden" 
-            name="nro_documento" 
-            value="{{ form.nro_documento.value }}"
-        >
-        {% else %}
-        {{ form.nro_documento }}
-        {% endif %}
-    </div>
-    <p id="nro_documento-error" class="help is-danger is-hidden">
-        <!-- Este mensaje se sobrescribirá por JS -->
-        El número de documento no es válido.
-    </p>
-    </div>
-
-    <!-- Fecha de emisión -->
-    <div class="mb-4">
-      {% if form.fecha_emision.errors %}
-          <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
-      {% endif %}
-      <div class="input-div">
-          <i class="fas fa-calendar-alt"></i>
-          {{ form.fecha_emision }}
+            <!-- Botones -->
+            <div class="d-flex justify-content-center gap-3 mt-4">
+              <button type="submit" class="btn btn-success" id="btn-guardar">
+                <i class="fas fa-save me-2"></i>{% if es_edicion %}Actualizar{% else %}Registrar{% endif %}
+              </button>
+              <a href="{% url 'listar_cuentas' %}" class="btn btn-danger">
+                <i class="fas fa-ban me-2"></i>Cancelar
+              </a>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-
-    <!-- Fecha de vencimiento -->
-    <div class="mb-4">
-    {% if form.fecha_vencimiento.errors %}
-        <p class="help is-danger">{{ form.fecha_vencimiento.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        <i class="fas fa-calendar-check"></i>
-        {{ form.fecha_vencimiento }}
-    </div>
-    </div>
-
-    <!-- Monto total -->
-    <div class="mb-4">
-    {% if form.monto_total.errors %}
-        <p class="help is-danger">{{ form.monto_total.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        <i class="fas fa-money-bill-wave"></i>
-        {{ form.monto_total }}
-    </div>
-    </div>
-
-    <!-- Monto abonado inicial -->
-    <div class="mb-4">
-    {% if form.monto_abonado_inicial.errors %}
-        <p class="help is-danger">{{ form.monto_abonado_inicial.errors.0 }}</p>
-    {% endif %}
-    <div class="input-div">
-        <i class="fas fa-coins"></i>
-        {{ form.monto_abonado_inicial }}
-    </div>
-    </div>
-
-    <div class="d-flex justify-content-center gap-3 mt-4">
-      <button type="submit" class="btn btn-success" id="btn-guardar">
-        <i class="fas fa-save me-2"></i>{% if es_edicion %}Actualizar{% else %}Registrar{% endif %} Cuenta por Pagar
-      </button>
-      <a href="{% url 'listar_cuentas' %}" class="btn btn-danger">
-        <i class="fas fa-ban me-2"></i> Cancelar
-      </a>
-    </div>
-  </form>
+  </div>
 </div>
 
 <script>
@@ -157,43 +163,44 @@
     const tipoSeleccionado = tipoDoc.options[tipoDoc.selectedIndex].text;
     // Validar proveedor
     if (!proveedor.value.trim()) {
-      errorProveedor.classList.remove('is-hidden');
+      errorProveedor.classList.remove('d-none');
       valido = false;
     } else {
-      errorProveedor.classList.add('is-hidden');
+      errorProveedor.classList.add('d-none');
     }
 
     // Validar tipo de documento
     if (tipoSeleccionado === "Boleta") {
-    if (!/^\d{8}$/.test(nro)) {
+      if (!/^\d{8}$/.test(nro)) {
         errorNroDoc.textContent = "El número de DNI debe tener 8 dígitos.";
-        errorNroDoc.classList.remove('is-hidden');
+        errorNroDoc.classList.remove('d-none');
         valido = false;
-    } else {
-        errorNroDoc.classList.add('is-hidden');
-    }
+      } else {
+        errorNroDoc.classList.add('d-none');
+      }
     } else if (tipoSeleccionado === "Factura") {
-    if (!/^\d{11}$/.test(nro)) {
+      if (!/^\d{11}$/.test(nro)) {
         errorNroDoc.textContent = "El número de RUC debe tener 11 dígitos.";
-        errorNroDoc.classList.remove('is-hidden');
+        errorNroDoc.classList.remove('d-none');
         valido = false;
+      } else {
+        errorNroDoc.classList.add('d-none');
+      }
     } else {
-        errorNroDoc.classList.add('is-hidden');
-    }
-    } else {
-    errorNroDoc.textContent = "Selecciona un tipo de documento válido.";
-    errorNroDoc.classList.remove('is-hidden');
-    valido = false;
+      errorNroDoc.textContent = "Selecciona un tipo de documento válido.";
+      errorNroDoc.classList.remove('d-none');
+      valido = false;
     }
 
     return valido;
   }
 </script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     flatpickr("input[name='fecha_emision']", {
-      dateFormat: "Y-m-d",  // o cambia a "d/m/Y" si prefieres
-      locale: "es"  // para idioma español (requiere librería adicional)
+      dateFormat: "Y-m-d",
+      locale: "es"
     });
     flatpickr("input[name='fecha_vencimiento']", {
       dateFormat: "Y-m-d",
