@@ -1,7 +1,7 @@
 
 .nav-link.active-item {
     background-color: #ffffff;
-    color: #6c110b !important;
+    color: #0cb7f2 !important;
     border-radius: 50px;
     font-weight: bold;
     padding: 10px 20px;
@@ -26,49 +26,34 @@
     font-size: 12px;
 }
   
-.navbar-custom {
-    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+
+
+
+.nav-link:hover {
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    background-color: #0cb7f2;
+    color: #ffffff !important;
     font-weight: bold;
-    color: white !important;
+}
+
+
+.navbar-custom .nav-link:hover, 
+.navbar-custom .dropdown-item:hover {
+    color: #0cb7f2 !important;
 }
 
 .navbar-custom .nav-link,
 .navbar-custom .dropdown-item {
-    color: white !important;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0) !important;
     font-weight: bold;
     font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
 }
 
-.navbar-custom .dropdown-menu {
-    background-color: #8B0000;
-    border: none;
-}
 
-.navbar-custom .dropdown-item:hover {
-    background-color: #a60000;
-    color: #fff !important;
-}
-
-.active-item {
-    background-color: #a60000; /* Fondo más oscuro para el item activo */
-    color: white; /* Color del texto cuando está activo */
-    font-weight: bold;
-}
-
-/* Estilo para los enlaces al pasar el mouse */
-.nav-link:hover {
-    background-color: #a60000; /* Fondo al pasar el mouse */
-    color: white; /* Color del texto al pasar el mouse */
-    cursor: pointer; /* Cambia el cursor para indicar que es un enlace */
-    font-weight: bold;
-}
-
-/* Efecto cuando el menú se expande */
-.collapse.show .nav-link:hover {
-    background-color: #ffffff;
-    color: #6c110b !important;
-    font-weight: bold;
-}
 
 
 .fc-toolbar.fc-header-toolbar {
@@ -105,4 +90,54 @@
 
 .fc-scrollgrid-sync-inner {
     overflow: hidden !important;
+}
+
+.autocomplete-suggestions { 
+        border: 1px solid #ccc; /* Borde un poco más visible */
+        max-height: 200px; /* Un poco más de altura si es necesario */
+        overflow-y: auto; 
+        position: absolute; 
+        background-color: white; 
+        z-index: 9999; /* Asegurar que esté por encima de otros elementos */
+        width: 100%; /* Que ocupe el ancho del input o su contenedor padre relativo */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra para destacar */
+        border-radius: 0 0 4px 4px; /* Bordes redondeados abajo si el input los tiene arriba */
+        margin-top: -1px; /* Para que se pegue al borde inferior del input si no hay espacio */
+}
+.autocomplete-suggestion { 
+        padding: 10px 12px; /* Más padding para mejor tacto */
+        cursor: pointer; 
+        border-bottom: 1px solid #eee; /* Separador sutil entre ítems */
+        font-size: 0.95rem; /* Ajustar tamaño de fuente si es necesario */
+        transition: background-color 0.2s ease-in-out; /* Transición suave para el hover */
+    }
+
+/* Último ítem sin borde inferior */
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+/* Estilo al pasar el mouse por encima (hover) */
+.autocomplete-suggestion:hover { 
+    background-color: #068d4e; /* Un color de fondo destacado (azul Bootstrap primario) */
+    color: white; /* Texto blanco para contraste */
+}
+
+/* Estilo para el texto dentro de la sugerencia, si quieres diferenciar partes */
+.autocomplete-suggestion .suggestion-text-main {
+    font-weight: 500; /* Por ejemplo, el nombre del proveedor en negrita */
+}
+.autocomplete-suggestion .suggestion-text-secondary {
+    font-size: 0.85em;
+    color: #555; /* Color más suave para el RUC o info secundaria */
+}
+.autocomplete-suggestion:hover .suggestion-text-secondary {
+    color: #f0f0f0; /* Ajustar color secundario en hover */
+}
+
+/* Mensajes de 'No se encontraron' o 'Error' */
+.autocomplete-suggestions .p-2.text-muted,
+.autocomplete-suggestions .p-2.text-danger {
+    padding: 10px 12px;
+    font-style: italic;
 }
