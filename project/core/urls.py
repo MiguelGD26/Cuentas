@@ -12,6 +12,7 @@ urlpatterns = [
     path('proveedores/nuevo/', views.crear_proveedor, name='crear_proveedor'),
     path('proveedores/editar/<uuid:pk>/', views.editar_proveedor, name='editar_proveedor'),
     path('proveedores/eliminar/<uuid:pk>/', views.eliminar_proveedor, name='eliminar_proveedor'),
+    path('buscar-proveedores-json/', views.buscar_proveedores_json, name='buscar_proveedores_json'), 
 
     # Cuentas por pagar
     path('cuentas/', views.listar_cuentas, name='listar_cuentas'),

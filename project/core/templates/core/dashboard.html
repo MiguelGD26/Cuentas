@@ -4,9 +4,40 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-  <h1 class="fw-bold mb-4">Dashboard</h1>
-  <div class="row g-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">Dashboard</h1>
+    {% if user.is_authenticated %}
+      <p class="fs-5 text-muted mb-0">
+       <h1 class="fw-bold mb-0">
+        ¡Bienvenido,
+        {% if user.first_name %}
+          {{ user.first_name }}
+        {% else %}
+          {{ user.username }}
+        {% endif %}!
+      </p>
+      </h1>
+    {% endif %}
+  </div>
 
+  <!-- 📣 Mensajes globales -->
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == "error" %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% else %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-4">
     <!-- Card Proveedores -->
     <div class="col-md-6 col-lg-3">
       <div class="card text-center shadow-sm">

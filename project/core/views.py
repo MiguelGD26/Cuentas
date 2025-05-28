@@ -13,7 +13,9 @@ from .models import Proveedor, CuentaPorPagar, TipoDocumento, Pago
 from .forms import ProveedorForm, CuentaPorPagarForm, PagoForm
 from django.utils.safestring import mark_safe
 from collections import defaultdict
+from django.utils.html import escape
 
+@login_required
 def dashboard(request):
     total_proveedores = Proveedor.objects.count()
     total_cuentas = CuentaPorPagar.objects.count()
@@ -98,7 +100,7 @@ def dashboard(request):
 
 # Página de inicio
 def home(request):
-    return render(request, 'core/home.html')
+    return render(request, 'core/login/login.html')
 
 # Login de usuario
 def login_user(request):
@@ -119,7 +121,7 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, "Sesión cerrada")
-    return redirect('home')
+    return redirect('login')
 
 # Listado de proveedores
 @login_required
@@ -168,6 +170,29 @@ def crear_proveedor(request):
         'es_edicion': False,
     })
 
+@login_required
+def buscar_proveedores_json(request):
+    term = request.GET.get('term', '').strip()
+    proveedores_qs = Proveedor.objects.all() 
+
+    if len(term) >= 2:  # Comienza la búsqueda solo si el término tiene 2 o más caracteres
+        proveedores_qs = proveedores_qs.filter(
+            Q(nombre__icontains=term) |
+            Q(ruc__icontains=term) |
+            Q(telefono__icontains=term)
+        )
+        proveedores = proveedores_qs.order_by('nombre')[:20]
+
+        results = [
+            {
+                "id": str(p.proveedor_id),
+                "text": f"{p.nombre} (RUC: {p.ruc})" 
+            } for p in proveedores
+        ]
+    else:
+        results = [] # Devuelve una lista vacía si no hay suficientes caracteres
+
+    return JsonResponse(results, safe=False)
 
 # Editar proveedor
 @login_required

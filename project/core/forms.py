@@ -61,15 +61,14 @@ class ProveedorForm(forms.ModelForm):
 
 
 class CuentaPorPagarForm(forms.ModelForm):
-    proveedor = forms.ModelChoiceField(
-        queryset=Proveedor.objects.all(),
-        empty_label="Selecciona proveedor",
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-            'id': 'proveedor'
+    proveedor_nombre_display = forms.CharField(
+        required=False, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'id': 'proveedor_search_input', 
+            'placeholder': 'Escriba para buscar proveedor...'
         })
     )
-
     tipo_documento = forms.ModelChoiceField(
     queryset=TipoDocumento.objects.all(),
     empty_label="Selecciona tipo de documento",
@@ -132,7 +131,51 @@ class CuentaPorPagarForm(forms.ModelForm):
             'fecha_emision', 'fecha_vencimiento',
             'monto_total', 'monto_abonado_inicial'
         ]
+        widgets = {
+            'proveedor': forms.HiddenInput(),
+         }
 
+        proveedor_nombre_display = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'proveedor_search_input', 'placeholder': 'Escriba para buscar proveedor...'}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Reordenar campos si es necesario
+        field_order = list(self.fields.keys())
+        if 'proveedor_nombre_display' in field_order and 'proveedor' in field_order:
+            pnd_idx = field_order.index('proveedor_nombre_display')
+            p_idx = field_order.index('proveedor')
+            if pnd_idx > p_idx: # Si el display está después del hidden, moverlo antes
+                field_order.pop(pnd_idx)
+                field_order.insert(p_idx, 'proveedor_nombre_display')
+                self.order_fields(field_order)
+
+        # Pre-rellenar el nombre del proveedor en modo edición
+        # self.instance es el objeto CuentaPorPagar que se está editando, o uno nuevo si es creación.
+        # self.instance.pk será None si es un objeto nuevo.
+        if self.instance and self.instance.pk:  # Solo si es una instancia existente (modo edición)
+            try:
+                # Intentamos acceder al proveedor solo si la instancia ya existe.
+                # Si self.instance.proveedor es None (p.ej. ForeignKey con null=True y no seteado),
+                # esto no dará error, pero self.instance.proveedor.nombre sí lo daría.
+                if self.instance.proveedor: # Comprueba que el campo ForeignKey 'proveedor' no sea None
+                    self.fields['proveedor_nombre_display'].initial = self.instance.proveedor.nombre
+            except Proveedor.DoesNotExist: # O la excepción genérica RelatedObjectDoesNotExist
+                 # Esto podría pasar si el ID del proveedor en la BD es inválido, aunque es raro
+                 # con ForeignKeys bien definidos.
+                 self.fields['proveedor_nombre_display'].initial = "" # O un mensaje de error
+            # No necesitas un `else` aquí, si `self.instance.proveedor` es `None`, no se establece `initial`.
+
+        # Aplicar clases a otros campos (tu lógica existente)
+        for field_name, field in self.fields.items():
+            if field_name not in ['proveedor', 'proveedor_nombre_display', 'fecha_emision', 'fecha_vencimiento']:
+                current_class = field.widget.attrs.get('class', '')
+                is_select = isinstance(field.widget, forms.Select)
+                target_class = 'form-select' if is_select else 'form-control'
+                
+                if target_class not in current_class and not isinstance(field.widget, forms.CheckboxInput):
+                    field.widget.attrs['class'] = f'{current_class} {target_class}'.strip()
+                    
     def clean(self):
         cleaned_data = super().clean()
         total = cleaned_data.get("monto_total")
@@ -147,7 +190,6 @@ class CuentaPorPagarForm(forms.ModelForm):
             raise forms.ValidationError("La fecha de emisión no puede ser posterior a la fecha de vencimiento.")
         
         return cleaned_data
-
 
 class PagoForm(forms.ModelForm):
     cuenta = forms.ModelChoiceField(

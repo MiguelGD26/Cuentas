@@ -1,6 +1,6 @@
 {% extends 'core/plantilla/app.html' %}
 {% load static %}
-{% load form_filters %}
+{% load form_filters %} {# Si lo sigues usando para otros campos #}
 {% block title %}{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar{% endblock %}
 
 {% block content %}
@@ -9,6 +9,7 @@
     <div class="card-header {% if es_edicion %}bg-primary{% else %}bg-success{% endif %} text-white">
       <h4 class="mb-0">{% if es_edicion %}Editar{% else %}Registrar{% endif %} Cuenta por Pagar</h4>
     </div>
+    
     <div class="card-body">
       <div class="row g-4 align-items-center">
         <!-- Imagen -->
@@ -18,7 +19,7 @@
 
         <!-- Formulario -->
         <div class="col-md-8">
-          <form method="POST" onsubmit="return validarFormulario();">
+          <form method="POST" id="cuentaPagarForm" onsubmit="return validarFormulario();">
             {% csrf_token %}
 
             <!-- Proveedor -->
@@ -26,24 +27,28 @@
               {% if form.proveedor.errors %}
                 <div class="text-danger small">{{ form.proveedor.errors.0 }}</div>
               {% endif %}
-              <label for="proveedor" class="form-label">Proveedor</label>
+              <label for="proveedor_search_input" class="form-label">Proveedor:</label> {# El for apunta al ID del campo de búsqueda #}
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user-tie text-danger"></i></span>
                 {% if es_edicion %}
-                  <select disabled class="form-select" id="proveedor-disabled">
-                    {% for proveedor in form.proveedor.field.queryset %}
-                      <option value="{{ proveedor.pk }}" {% if proveedor.pk == form.proveedor.value %}selected{% endif %}>
-                        {{ proveedor }}
-                      </option>
-                    {% endfor %}
-                  </select>
-                  <input type="hidden" name="proveedor" value="{{ form.proveedor.value }}">
+                  <input type="text" class="form-control" value="{{ form.proveedor_nombre_display.value|default:'' }}" disabled>
+                  <input type="hidden" name="proveedor_nombre_display" value="{{ form.proveedor_nombre_display.value|default:'' }}">
                 {% else %}
-                  {{ form.proveedor|add_class:"form-select" }}
+                {{ form.proveedor_nombre_display }}
                 {% endif %}
               </div>
-              <div id="proveedor-error" class="text-danger small d-none">Debes seleccionar un proveedor.</div>
-            </div>
+              <div style="position:relative;">
+                <div class="autocomplete-suggestions-container mt-1"></div>
+              </div>
+              
+              {# Este es el campo oculto que almacenará el ID del proveedor, definido en forms.py (widget HiddenInput) #}
+              {{ form.proveedor }} 
+              
+              <div id="proveedor-error-js" class="text-danger small mt-1 d-none">Debes seleccionar un proveedor.</div>
+            </div> 
+
+            
+          
 
             <!-- Tipo de documento -->
             <div class="mb-3">
@@ -72,63 +77,57 @@
               {% if form.nro_documento.errors %}
                 <div class="text-danger small">{{ form.nro_documento.errors.0 }}</div>
               {% endif %}
-              <label for="nro_documento" class="form-label">Número de Documento</label>
+              <label for="{{ form.nro_documento.id_for_label }}" class="form-label">Número de Documento</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-hashtag text-danger"></i></span>
                 {% if es_edicion %}
-                  <input type="text" class="form-control" value="{{ form.nro_documento.value }}" disabled>
-                  <input type="hidden" name="nro_documento" value="{{ form.nro_documento.value }}">
+                  <input type="text" class="form-control" value="{{ form.nro_documento.value|default:'' }}" disabled>
+                  <input type="hidden" name="nro_documento" value="{{ form.nro_documento.value|default:'' }}">
                 {% else %}
-                  {{ form.nro_documento|add_class:"form-control" }}
+                  {{ form.nro_documento }} {# Asumiendo que el form.py le da la clase form-control #}
                 {% endif %}
               </div>
               <div id="nro_documento-error" class="text-danger small d-none">El número de documento no es válido.</div>
             </div>
 
-            <!-- Fecha de emisión -->
-            <div class="mb-4">
-              {% if form.fecha_emision.errors %}
-                  <p class="help is-danger">{{ form.fecha_emision.errors.0 }}</p>
-              {% endif %}
-              <div class="input-div d-flex align-items-center gap-2">
-                  <i class="fas fa-calendar-alt"></i>
-                  {{ form.fecha_emision|add_class:"form-control" }}
+             <!-- Fecha de emisión -->
+            <div class="mb-3">
+              <label for="{{ form.fecha_emision.id_for_label }}" class="form-label">Fecha de Emisión:</label>
+              {% if form.fecha_emision.errors %}<div class="text-danger small">{{ form.fecha_emision.errors.0 }}</div>{% endif %}
+              <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-calendar-alt text-danger"></i></span>
+                  {{ form.fecha_emision }}
               </div>
             </div>
 
             <!-- Fecha de vencimiento -->
-            <div class="mb-4">
-              {% if form.fecha_vencimiento.errors %}
-                  <p class="help is-danger">{{ form.fecha_vencimiento.errors.0 }}</p>
-              {% endif %}
-              <div class="input-div d-flex align-items-center gap-2">
-                  <i class="fas fa-calendar-check"></i>
-                  {{ form.fecha_vencimiento|add_class:"form-control" }}
+            <div class="mb-3">
+              <label for="{{ form.fecha_vencimiento.id_for_label }}" class="form-label">Fecha de Vencimiento:</label>
+              {% if form.fecha_vencimiento.errors %}<div class="text-danger small">{{ form.fecha_vencimiento.errors.0 }}</div>{% endif %}
+              <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-calendar-check text-danger"></i></span>
+                  {{ form.fecha_vencimiento }}
               </div>
             </div>
 
 
             <!-- Monto total -->
             <div class="mb-3">
-              {% if form.monto_total.errors %}
-                <div class="text-danger small">{{ form.monto_total.errors.0 }}</div>
-              {% endif %}
-              <label for="monto_total" class="form-label">Monto Total</label>
+              <label for="{{ form.monto_total.id_for_label }}" class="form-label">Monto Total</label>
+              {% if form.monto_total.errors %}<div class="text-danger small">{{ form.monto_total.errors.0 }}</div>{% endif %}
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-money-bill-wave text-danger"></i></span>
-                {{ form.monto_total|add_class:"form-control" }}
+                {{ form.monto_total }}
               </div>
             </div>
 
             <!-- Monto abonado inicial -->
             <div class="mb-3">
-              {% if form.monto_abonado_inicial.errors %}
-                <div class="text-danger small">{{ form.monto_abonado_inicial.errors.0 }}</div>
-              {% endif %}
-              <label for="monto_abonado_inicial" class="form-label">Monto Abonado Inicial</label>
+              <label for="{{ form.monto_abonado_inicial.id_for_label }}" class="form-label">Monto Abonado Inicial</label>
+              {% if form.monto_abonado_inicial.errors %}<div class="text-danger small">{{ form.monto_abonado_inicial.errors.0 }}</div>{% endif %}
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-coins text-danger"></i></span>
-                {{ form.monto_abonado_inicial|add_class:"form-control" }}
+                {{ form.monto_abonado_inicial }}
               </div>
             </div>
 
@@ -149,55 +148,149 @@
 </div>
 
 <script>
-  function validarFormulario() {
+// Definición de la función setupAutocompleteProveedor (la que me pasaste)
+function setupAutocompleteProveedor(searchInput, hiddenIdInput, suggestionsContainer, searchUrl) {
+    let debounceTimer;
+
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.target.value.trim() === '') {
+            hiddenIdInput.value = '';
+        }
+    });
+
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        const term = e.target.value;
+        suggestionsContainer.innerHTML = ''; 
+
+        if (term.length < 1) {
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`${searchUrl}?term=${encodeURIComponent(term)}`)
+                .then(response => {
+                    if (!response.ok) { // Chequear si la respuesta fue exitosa (status 200-299)
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    suggestionsContainer.innerHTML = ''; 
+                    if (data.length > 0) {
+                        const ul = document.createElement('ul');
+                        ul.className = 'list-unstyled autocomplete-suggestions';
+                        data.forEach(item => {
+                        const li = document.createElement('li');
+                        // li.textContent = item.text; // <--- LÍNEA ANTERIOR
+                        li.innerHTML = item.text;     // <--- LÍNEA CORREGIDA: USA INNERHTML
+                        
+                        li.className = 'autocomplete-suggestion';
+                        li.setAttribute('data-id', item.id); 
+
+                        li.addEventListener('click', function() {
+                            // Al hacer clic, queremos que el input de búsqueda muestre solo el texto plano, no el HTML.
+                            // Podemos obtener el texto del primer span (el nombre del proveedor)
+                            const mainText = this.querySelector('.suggestion-text-main');
+                            if (mainText) {
+                                searchInput.value = mainText.textContent.trim();
+                            } else {
+                                // Fallback si no se encuentra el span, usar todo el texto sin HTML
+                                searchInput.value = this.textContent.trim(); 
+                            }
+                            
+                            hiddenIdInput.value = this.getAttribute('data-id'); // El ID sigue siendo el mismo
+                            suggestionsContainer.innerHTML = ''; 
+                            document.getElementById('proveedor-error-js').classList.add('d-none');
+                        });
+                        ul.appendChild(li);
+                    });
+                        suggestionsContainer.appendChild(ul);
+                    } else {
+                        suggestionsContainer.innerHTML = '<div class="p-2 text-muted">No se encontraron proveedores.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching or parsing data:', error); // Mensaje más específico
+                    suggestionsContainer.innerHTML = '<div class="p-2 text-danger">Error al buscar. Revise la consola.</div>';
+                });
+        }, 300); 
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target) && !suggestionsContainer.contains(event.target)) {
+            suggestionsContainer.innerHTML = '';
+        }
+    });
+}
+
+// Definición de la función validarFormulario (la que ya tienes)
+function validarFormulario() {
+    // ... tu lógica de validación ...
     let valido = true;
+    
+    const proveedorHiddenInput = document.getElementById('{{ form.proveedor.id_for_label }}'); 
+    const errorProveedorJs = document.getElementById('proveedor-error-js');
+    
+    if (!proveedorHiddenInput.value) { 
+        errorProveedorJs.textContent = "Debes seleccionar un proveedor.";
+        errorProveedorJs.classList.remove('d-none');
+        valido = false;
+    } else {
+        errorProveedorJs.classList.add('d-none');
+    }
 
-    const proveedor = document.getElementById('proveedor');
-    const tipoDoc = document.getElementById('tipo_documento');
-    const nroDoc = document.getElementById('nro_documento');
-
-    const errorProveedor = document.getElementById('proveedor-error');
+    // ----- VALIDACIÓN DE OTROS CAMPOS (Tipo y Número de Documento) -----
+    const esEdicion = {{ es_edicion|yesno:"true,false" }};
+    const tipoDocElement = document.getElementById('{{ form.tipo_documento.id_for_label }}');
+    const nroDocElement = document.getElementById('{{ form.nro_documento.id_for_label }}');
     const errorTipoDoc = document.getElementById('tipo_documento-error');
     const errorNroDoc = document.getElementById('nro_documento-error');
-    const nro = nroDoc.value.trim();
-    const tipoSeleccionado = tipoDoc.options[tipoDoc.selectedIndex].text;
-    // Validar proveedor
-    if (!proveedor.value.trim()) {
-      errorProveedor.classList.remove('d-none');
-      valido = false;
-    } else {
-      errorProveedor.classList.add('d-none');
-    }
 
-    // Validar tipo de documento
-    if (tipoSeleccionado === "Boleta") {
-      if (!/^\d{8}$/.test(nro)) {
-        errorNroDoc.textContent = "El número de DNI debe tener 8 dígitos.";
-        errorNroDoc.classList.remove('d-none');
-        valido = false;
-      } else {
-        errorNroDoc.classList.add('d-none');
-      }
-    } else if (tipoSeleccionado === "Factura") {
-      if (!/^\d{11}$/.test(nro)) {
-        errorNroDoc.textContent = "El número de RUC debe tener 11 dígitos.";
-        errorNroDoc.classList.remove('d-none');
-        valido = false;
-      } else {
-        errorNroDoc.classList.add('d-none');
-      }
-    } else {
-      errorNroDoc.textContent = "Selecciona un tipo de documento válido.";
-      errorNroDoc.classList.remove('d-none');
-      valido = false;
-    }
+    if (!esEdicion) { 
+        let tipoDocValue = tipoDocElement ? tipoDocElement.value : null;
+        let nroDocValue = nroDocElement ? nroDocElement.value.trim() : null;
+        let tipoDocText = "";
+        if (tipoDocElement && tipoDocElement.tagName === 'SELECT' && tipoDocElement.selectedIndex >= 0 && tipoDocElement.options[tipoDocElement.selectedIndex]) { // Añadida comprobación para options
+            tipoDocText = tipoDocElement.options[tipoDocElement.selectedIndex].text;
+        }
 
+        if (!tipoDocValue) {
+            errorTipoDoc.textContent = "Selecciona un tipo de documento.";
+            errorTipoDoc.classList.remove('d-none');
+            valido = false;
+        } else {
+            errorTipoDoc.classList.add('d-none');
+            if (tipoDocText.toLowerCase().includes("boleta")) {
+                if (!/^\d{8}$/.test(nroDocValue)) {
+                    errorNroDoc.textContent = "Para Boleta, el número de documento debe tener 8 dígitos.";
+                    errorNroDoc.classList.remove('d-none');
+                    valido = false;
+                } else { errorNroDoc.classList.add('d-none'); }
+            } else if (tipoDocText.toLowerCase().includes("factura")) {
+                if (!/^\d{11}$/.test(nroDocValue)) {
+                    errorNroDoc.textContent = "Para Factura, el número de documento debe tener 11 dígitos.";
+                    errorNroDoc.classList.remove('d-none');
+                    valido = false;
+                } else { errorNroDoc.classList.add('d-none'); }
+            } else if (!nroDocValue) {
+                errorNroDoc.textContent = "El número de documento no puede estar vacío.";
+                errorNroDoc.classList.remove('d-none');
+                valido = false;
+            } else { errorNroDoc.classList.add('d-none'); }
+        }
+    } else { 
+        errorTipoDoc.classList.add('d-none');
+        errorNroDoc.classList.add('d-none');
+    }
+    
     return valido;
-  }
-</script>
+}
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
+
+// Event listener para cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function () {
+    // Inicialización de Flatpickr
     flatpickr("input[name='fecha_emision']", {
       dateFormat: "Y-m-d",
       locale: "es"
@@ -206,7 +299,30 @@
       dateFormat: "Y-m-d",
       locale: "es"
     });
-  });
-</script>
 
+    const proveedorSearchInput = document.getElementById('proveedor_search_input'); 
+    const proveedorHiddenIdInput = document.getElementById('{{ form.proveedor.id_for_label }}'); 
+
+    let suggestionsDiv = null;
+    if (proveedorSearchInput && proveedorSearchInput.closest('.input-group') && proveedorSearchInput.closest('.input-group').nextElementSibling) {
+        suggestionsDiv = proveedorSearchInput.closest('.input-group').nextElementSibling.querySelector('.autocomplete-suggestions-container');
+    }
+    
+
+    const esEdicion = {{ es_edicion|yesno:"true,false" }};
+    if (proveedorSearchInput && !proveedorSearchInput.disabled && proveedorHiddenIdInput && suggestionsDiv) {
+        setupAutocompleteProveedor(
+            proveedorSearchInput,
+            proveedorHiddenIdInput,
+            suggestionsDiv,
+            "{% url 'buscar_proveedores_json' %}"
+        );
+    } else {
+        if (!proveedorSearchInput) console.warn("Input de búsqueda de proveedor no encontrado.");
+        if (proveedorSearchInput && proveedorSearchInput.disabled) console.warn("Input de búsqueda de proveedor está deshabilitado.");
+        if (!proveedorHiddenIdInput) console.warn("Input oculto de ID de proveedor no encontrado.");
+        if (!suggestionsDiv) console.warn("Contenedor de sugerencias no encontrado.");
+    }
+});
+</script>
 {% endblock %}
